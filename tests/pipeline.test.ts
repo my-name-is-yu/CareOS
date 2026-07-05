@@ -1,18 +1,27 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { loadHistory, loadMemory, loadResident } from "../src/lib/data";
+import { loadHistory, loadMemory, loadMemoryContextForNote, loadResident } from "../src/lib/data";
 import { CompileEnvelopeSchema, CompileResultSchema, type CompileResult } from "../src/lib/schema";
 import { buildCompileInput, compileFromBody, CompileRequestBodySchema } from "../src/lib/compile";
+import { buildGBrainQuery } from "../src/lib/gbrain";
 import { lintClinicalLanguage } from "../src/lib/lint";
 import { buildRealtimeInstructions, realtimeModel, realtimeWebRtcUrl } from "../src/lib/realtime";
 import { normalizeCitationText, verifyCompileResult } from "../src/lib/verify";
 
 const originalCwd = globalThis.process.cwd();
 const originalKey = globalThis.process.env.OPENAI_API_KEY;
+const originalMemoryBackend = globalThis.process.env.CAREOS_MEMORY_BACKEND;
+const originalGBrainCommand = globalThis.process.env.GBRAIN_COMMAND;
+const originalGBrainOperation = globalThis.process.env.GBRAIN_OPERATION;
+const originalGBrainTimeout = globalThis.process.env.GBRAIN_TIMEOUT_MS;
 
 afterEach(async () => {
   globalThis.process.chdir(originalCwd);
   globalThis.process.env.OPENAI_API_KEY = originalKey;
+  globalThis.process.env.CAREOS_MEMORY_BACKEND = originalMemoryBackend;
+  globalThis.process.env.GBRAIN_COMMAND = originalGBrainCommand;
+  globalThis.process.env.GBRAIN_OPERATION = originalGBrainOperation;
+  globalThis.process.env.GBRAIN_TIMEOUT_MS = originalGBrainTimeout;
   vi.restoreAllMocks();
   vi.resetModules();
 });
@@ -68,6 +77,36 @@ describe("patient memory data", () => {
       family_context_notes: expect.arrayContaining([expect.stringContaining("Mika")]),
       recent_history: expect.arrayContaining([expect.stringContaining("slower gait")]),
       watch_patterns: expect.arrayContaining([expect.stringContaining("medication refusal")]),
+    });
+  });
+
+  it("includes resident identifiers and current note text in G-Brain search queries", () => {
+    expect(
+      buildGBrainQuery(
+        {
+          name: "Aiko Mori",
+          age: 84,
+          room: "A-101",
+          timezone: "Asia/Tokyo",
+          language: "ja",
+        },
+        "Refused medication after corridor noise.",
+      ),
+    ).toContain("resident Aiko Mori room A-101");
+  });
+
+  it("falls back to JSON memory when the G-Brain CLI is unavailable", async () => {
+    globalThis.process.env.CAREOS_MEMORY_BACKEND = "gbrain";
+    globalThis.process.env.GBRAIN_COMMAND = "careos-missing-gbrain";
+    globalThis.process.env.GBRAIN_TIMEOUT_MS = "50";
+
+    await expect(loadMemoryContextForNote("Current note")).resolves.toMatchObject({
+      source: "json",
+      gbrainContext: null,
+      displayMemory: {
+        baseline: expect.arrayContaining([expect.stringContaining("walker")]),
+        watch_patterns: expect.arrayContaining([expect.stringContaining("medication refusal")]),
+      },
     });
   });
 });
@@ -157,10 +196,11 @@ describe("compile entrypoint contract", () => {
   });
 
   it("assembles memory-always-on input with resident, memory, and all history", () => {
-    const assembled = JSON.parse(buildCompileInput({ note: "New note", resident, memory, history }));
+    const assembled = JSON.parse(buildCompileInput({ note: "New note", resident, memory, history, gbrainContext: "G-Brain raw retrieved context" }));
     expect(assembled.current_note).toBe("New note");
     expect(assembled.context.resident).toEqual(resident);
     expect(assembled.context.memory).toEqual(memory);
+    expect(assembled.context.gbrain_knowledge_context).toBe("G-Brain raw retrieved context");
     expect(Object.keys(assembled.context.memory).sort()).toEqual([
       "baseline",
       "calming_approaches",
@@ -221,7 +261,35 @@ describe("realtime session route", () => {
     expect(instructions).toContain("Slower gait near hallway turns.");
     expect(instructions).toContain("Refuse diagnosis, prescribing");
     expect(instructions).toContain("Draft concise handoff text");
+    expect(instructions).toContain("G-Brain patient knowledge:");
     expect(instructions).not.toContain("Baseline traits");
+  });
+
+  it("passes raw G-Brain context through realtime instructions without section extraction", () => {
+    const rawContext = "G-Brain says Aiko Mori has repeated evening refusal notes with source citations.";
+    const instructions = buildRealtimeInstructions(
+      {
+        name: "Aiko Mori",
+        age: 84,
+        room: "A-101",
+        timezone: "Asia/Tokyo",
+        language: "ja",
+      },
+      {
+        baseline: [],
+        communication_cues: [],
+        preferences: [],
+        known_triggers: [],
+        calming_approaches: [],
+        family_context_notes: [],
+        recent_history: [],
+        watch_patterns: [],
+      },
+      [],
+      rawContext,
+    );
+
+    expect(instructions).toContain(rawContext);
   });
 
   it("returns only ephemeral client secret fields and never the server API key", async () => {

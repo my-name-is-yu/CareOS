@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-import { loadHistory, loadMemory, loadResident } from "../../../../lib/data";
+import { loadHistory, loadMemoryContextForNote, loadResident } from "../../../../lib/data";
 import { buildRealtimeInstructions, realtimeModel, type RealtimeClientSecretResponse } from "../../../../lib/realtime";
 
 export const runtime = "nodejs";
@@ -12,13 +12,14 @@ export async function POST() {
   }
 
   try {
-    const [resident, memory, history] = await Promise.all([loadResident(), loadMemory(), loadHistory()]);
+    const [resident, history] = await Promise.all([loadResident(), loadHistory()]);
+    const memoryContext = await loadMemoryContextForNote(undefined, resident);
     const openai = new OpenAI({ apiKey: globalThis.process.env.OPENAI_API_KEY });
     const session = await openai.realtime.clientSecrets.create({
       session: {
         type: "realtime",
         model: realtimeModel,
-        instructions: buildRealtimeInstructions(resident, memory, history),
+        instructions: buildRealtimeInstructions(resident, memoryContext.displayMemory, history, memoryContext.gbrainContext),
         output_modalities: ["audio"],
         audio: {
           input: {

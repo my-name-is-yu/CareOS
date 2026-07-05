@@ -1,6 +1,6 @@
 # CareOS Product v1 Architecture
 
-CareOS is a Next.js App Router application for a nurse-facing dementia-care workspace. Product v1 keeps the production path narrow: typed observations enter one memory-backed compile pipeline, patient memory is loaded from local JSON storage, and browser voice conversation uses OpenAI Realtime ephemeral client secrets generated server-side.
+CareOS is a Next.js App Router application for a nurse-facing dementia-care workspace. Product v1 keeps the production path narrow: typed observations enter one memory-backed compile pipeline, patient memory is loaded through a stable `PatientMemory` boundary backed by local JSON or G-Brain, and browser voice conversation uses OpenAI Realtime ephemeral client secrets generated server-side.
 
 ## Runtime Shape
 
@@ -28,14 +28,16 @@ Browser workspace
 
 ## Storage
 
-Product v1 uses JSON-backed local persistence:
+Product v1 keeps JSON-backed local persistence as the fallback:
 
 - `data/resident.json` stores identity fields plus nested Product v1 patient memory.
 - `loadResident()` returns only identity fields: name, age, room, timezone, and language.
 - `loadMemory()` returns nested memory: baseline, communication cues, preferences, known triggers, calming approaches, family/context notes, recent history, and watch patterns.
 - `data/history.json` stores shift-note history used for citation evidence.
 
-This storage boundary is intentionally simple for v1. A database, auth, and EHR integration can replace the local JSON boundary later without changing the application contract.
+When `CAREOS_MEMORY_BACKEND=gbrain` is set, CareOS queries the local G-Brain CLI and passes the full returned G-Brain context into compile and Realtime prompts. The default CLI operation is `gbrain search`; `GBRAIN_OPERATION=think` switches the same adapter to G-Brain synthesis. CareOS does not extract selected G-Brain sections into a separate store; `PatientMemory` remains display/fallback data from `data/resident.json`. `brain/residents/aiko-mori.md` is the bundled synthetic patient brain source to import into G-Brain for the hackathon path; it is not read directly by the app at runtime. If the CLI is unavailable, times out, or returns no usable resident knowledge, the loader falls back to JSON-only memory.
+
+This storage boundary is intentionally simple for v1. A database, G-Brain remote HTTP/MCP server, auth, and EHR integration can replace the local boundary later without changing the application contract.
 
 ## Compile Pipeline
 

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { assembleCompileInput, runCareCompiler, type CompileInput } from "./agent";
-import { loadHistory, loadMemory, loadResident } from "./data";
+import { loadHistory, loadMemoryContextForNote, loadResident } from "./data";
 import { lintClinicalLanguage } from "./lint";
 import { CompileEnvelopeSchema, type CompileEnvelope, type CompileResult } from "./schema";
 import { needsCorrectiveRerun, verifyCompileResult } from "./verify";
@@ -34,8 +34,9 @@ export async function compileFromBody(
     throw new Error("OPENAI_API_KEY is required.");
   }
 
-  const [resident, memory, history] = await Promise.all([loadResident(), loadMemory(), loadHistory()]);
-  const baseInput = { note, resident, memory, history };
+  const [resident, history] = await Promise.all([loadResident(), loadHistory()]);
+  const memoryContext = await loadMemoryContextForNote(note, resident);
+  const baseInput = { note, resident, memory: memoryContext.displayMemory, gbrainContext: memoryContext.gbrainContext, history };
   let rawResult: CompileResult = await runCareCompiler(baseInput);
   let verification = verifyCompileResult(rawResult, history);
 

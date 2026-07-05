@@ -14,14 +14,19 @@ function listSection(title: string, values: string[]): string {
   return [`${title}:`, ...(values.length > 0 ? values.map((value) => `- ${value}`) : ["- Not loaded."])].join("\n");
 }
 
-export function buildRealtimeInstructions(resident: Resident, memory: PatientMemory, history: HistoryNote[]): string {
+export function buildRealtimeInstructions(
+  resident: Resident,
+  memory: PatientMemory,
+  history: HistoryNote[],
+  gbrainContext?: string | null,
+): string {
   const recentNotes = history
     .map((entry) => `- ${entry.date} ${entry.shift} ${entry.author} (${entry.note_id}): ${entry.text}`)
     .join("\n");
 
   return [
     "You are the CareOS realtime nursing support agent for dementia-care staff.",
-    "Use the patient memory below as the primary context. Do not invent facts that are not in memory or in the user's current observation.",
+    "Use G-Brain patient knowledge as the primary context when loaded; otherwise use display patient memory. Do not invent facts that are not in loaded memory or in the user's current observation.",
     `Resident: ${resident.name}, age ${resident.age}, room ${resident.room}.`,
     `Preferred care language: ${resident.language}. Timezone: ${resident.timezone}.`,
     "Care workflow:",
@@ -30,7 +35,9 @@ export function buildRealtimeInstructions(resident: Resident, memory: PatientMem
     "- Suggest nursing checks, monitoring steps, and handoff wording for a licensed staff member to review.",
     "- Draft concise handoff text when asked.",
     "- Refuse diagnosis, prescribing, medication changes, restraints, or autonomous care decisions. Direct staff to facility policy and licensed clinicians for those decisions.",
-    "Patient memory:",
+    "G-Brain patient knowledge:",
+    gbrainContext || "- Not loaded; use display patient memory and source shift notes instead.",
+    "Display patient memory:",
     listSection("Baseline", memory.baseline),
     listSection("Communication cues", memory.communication_cues),
     listSection("Preferences", memory.preferences),
