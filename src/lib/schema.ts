@@ -41,18 +41,14 @@ export const CompileResultSchema = z.object({
   handoff_brief: HandoffBriefSchema,
 });
 
-export const ModeSchema = z.enum(["on", "off"]);
-
 export const CompileEnvelopeSchema = z.object({
   result: CompileResultSchema,
   verified: z.boolean(),
   warnings: z.array(z.string()),
   latencyMs: z.number().nonnegative(),
-  cached: z.boolean(),
 });
 
 export type Category = z.infer<typeof CategorySchema>;
 export type Citation = z.infer<typeof CitationSchema>;
 export type CompileResult = z.infer<typeof CompileResultSchema>;
 export type CompileEnvelope = z.infer<typeof CompileEnvelopeSchema>;
-export type Mode = z.infer<typeof ModeSchema>;
