@@ -118,6 +118,20 @@ export async function saveProposal(proposal: ProfileUpdateProposal): Promise<Pro
   return parsed;
 }
 
+export async function nextProposalId(): Promise<string> {
+  const proposals = await readProposalsFile();
+  const pattern = /^prop-(\d+)$/;
+  let max = 0;
+  for (const proposal of proposals) {
+    const match = pattern.exec(proposal.id);
+    if (match) {
+      max = Math.max(max, Number(match[1]));
+    }
+  }
+  const next = max + 1;
+  return `prop-${String(next).padStart(3, "0")}`;
+}
+
 export async function updateProposalStatus(
   id: string,
   status: ProfileUpdateProposal["status"],
