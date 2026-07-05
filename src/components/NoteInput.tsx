@@ -42,7 +42,7 @@ export function NoteInput({ onSubmit, loading }: Props) {
           }
         }
       } catch {
-        // Demo mode falls back to typed note display when transcription is unavailable.
+        // Keep the manually entered note intact when transcription is unavailable.
       }
       stream.getTracks().forEach((track) => track.stop());
     };
@@ -54,11 +54,11 @@ export function NoteInput({ onSubmit, loading }: Props) {
 
   return (
     <section className="note-input panel">
-      <p className="eyebrow">Typed note path</p>
+      <p className="eyebrow">Observation note</p>
       <textarea
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        placeholder="Write the resident note here."
+        placeholder="Enter the current resident observation."
         rows={7}
       />
       <div className="input-actions">
@@ -66,7 +66,7 @@ export function NoteInput({ onSubmit, loading }: Props) {
           {recording ? "Stop mic" : "Mic"}
         </button>
         <button type="button" onClick={() => onSubmit({ note })} disabled={loading || !note.trim()}>
-          Send to compile
+          Create handoff
         </button>
       </div>
       <div className="transcript">

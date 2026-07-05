@@ -1,19 +1,24 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ModeToggle } from "@/src/components/ModeToggle";
 import { NoteInput } from "@/src/components/NoteInput";
 import { ShiftView } from "@/src/components/ShiftView";
 import type { CompilePayload, Resident } from "@/src/lib/careos-types";
-import { defaultResident, fixtureOff, fixtureOn } from "@/src/lib/careos-fixtures";
+
+const defaultResident: Resident = {
+  name: "Default Resident",
+  age: 84,
+  room: "A-101",
+  baseline_traits: ["slow gait", "prefers calm communication", "uses walker"],
+  timezone: "Asia/Tokyo",
+  language: "ja"
+};
 
 export default function HomePage() {
   const [resident, setResident] = useState<Resident>(defaultResident);
-  const [mode, setMode] = useState<"off" | "on">("off");
   const [loading, setLoading] = useState(false);
-  const [offPayload, setOffPayload] = useState<CompilePayload | null>(fixtureOff);
-  const [onPayload, setOnPayload] = useState<CompilePayload | null>(fixtureOn);
-  const activePayload = mode === "on" ? onPayload : offPayload;
+  const [payload, setPayload] = useState<CompilePayload | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     globalThis.fetch("/api/resident")
@@ -22,80 +27,68 @@ export default function HomePage() {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    function onKeyDown(event: { key: string }) {
-      if (event.key.toLowerCase() === "f") {
-        if (mode === "off") {
-          setOffPayload({ ...fixtureOff, cached: true });
-        } else {
-          setOnPayload({ ...fixtureOn, cached: true });
-        }
-      }
-    }
-    globalThis.window.addEventListener("keydown", onKeyDown);
-    return () => globalThis.window.removeEventListener("keydown", onKeyDown);
-  }, [mode]);
-
   async function submit(note: { note: string }) {
     setLoading(true);
-    let settled = 0;
-    const finish = () => {
-      settled += 1;
-      if (settled === 2) setLoading(false);
-    };
-    const send = async (modeName: "off" | "on") => {
-      try {
-        const response = await globalThis.fetch("/api/compile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ note: note.note, mode: modeName })
-        });
-        if (!response.ok) throw new Error("compile failed");
-        const payload = (await response.json()) as CompilePayload;
-        if (modeName === "off") {
-          setOffPayload(payload);
-        } else {
-          setOnPayload(payload);
-        }
-      } catch {
-        if (modeName === "off") {
-          setOffPayload({ ...fixtureOff, cached: true });
-        } else {
-          setOnPayload({ ...fixtureOn, cached: true });
-        }
-      } finally {
-        finish();
-      }
-    };
-
-    void send("off");
-    void send("on");
+    setError(null);
+    try {
+      const response = await globalThis.fetch("/api/compile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ note: note.note })
+      });
+      if (!response.ok) throw new Error("Unable to compile handoff.");
+      setPayload((await response.json()) as CompilePayload);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to compile handoff.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   const residentLabel = useMemo(() => `${resident.name} · Room ${resident.room}`, [resident]);
 
   return (
     <main className="app-shell">
-      <section className="hero compact">
+      <section className="patient-bar">
         <div>
-          <p className="eyebrow">CareOS ops console</p>
-          <h1>Typed note to resident shift memory</h1>
-          <p className="lede">Live resident context, compiled note review, and cached fallback data in one operator-focused screen.</p>
+          <p className="eyebrow">Current resident</p>
+          <h1>{residentLabel}</h1>
         </div>
-        <div className="resident-card">
-          <span>Resident</span>
-          <strong>{resident.name}</strong>
-          <span>{residentLabel}</span>
-          <span>{resident.baseline_traits.join(" • ")}</span>
+        <div className="patient-meta" aria-label="resident baseline">
+          <span>{resident.age} years</span>
+          <span>{resident.language.toUpperCase()}</span>
+          <span>{resident.timezone}</span>
         </div>
       </section>
 
       <section className="workspace">
-        <NoteInput loading={loading} onSubmit={submit} />
-        <div className="right-rail">
-          <ModeToggle selectedMode={mode} onChange={setMode} />
-          <ShiftView loading={loading} payload={activePayload} mode={mode} residentLabel={residentLabel} />
+        <div className="main-column">
+          <ShiftView loading={loading} payload={payload} resident={resident} error={error} />
+          <NoteInput loading={loading} onSubmit={submit} />
         </div>
+        <aside className="memory-rail" aria-label="patient memory">
+          <div className="rail-section">
+            <p className="eyebrow">Patient memory</p>
+            <h2>{resident.name}</h2>
+            <ul className="memory-list">
+              {resident.baseline_traits.map((trait) => <li key={trait}>{trait}</li>)}
+            </ul>
+          </div>
+          <div className="rail-section">
+            <h3>Care approach</h3>
+            <p>Keep communication calm, support walker use, and reduce corridor noise during care transitions.</p>
+          </div>
+          <div className="rail-section">
+            <h3>Recent changes</h3>
+            <ul className="memory-list">
+              {(payload?.result.drift_flags.length
+                ? payload.result.drift_flags.map((flag) => flag.claim)
+                : ["Slower gait after lunch", "Medication refusal repeated", "Corridor noise sensitivity"]).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </aside>
       </section>
     </main>
   );
