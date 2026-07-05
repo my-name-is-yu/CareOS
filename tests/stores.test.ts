@@ -129,3 +129,60 @@ describe("proposals store", () => {
     await expect(updateProposalStatus("missing", "approved")).rejects.toThrow("not found");
   });
 });
+
+describe("multi-resident isolation", () => {
+  it("does not leak records across residentId filters", async () => {
+    const kenjiRecord: CareRecord = {
+      id: "rec-ks-900",
+      residentId: "kenji-sato",
+      type: "nurse_observation",
+      occurredAt: "2026-07-01T12:00:00.000Z",
+      author: { role: "nurse", name: "Kondo" },
+      body: "Resident listened to the radio baseball broadcast this afternoon.",
+    };
+
+    await appendRecord(baseRecord);
+    await appendRecord(kenjiRecord);
+
+    const aikoRecords = await loadRecords("aiko-mori");
+    expect(aikoRecords).toEqual([baseRecord]);
+
+    const kenjiRecords = await loadRecords("kenji-sato");
+    expect(kenjiRecords).toEqual([kenjiRecord]);
+
+    const allRecords = await loadRecords();
+    expect(allRecords).toHaveLength(2);
+  });
+
+  it("does not leak profile versions across residentId", async () => {
+    const kenjiProfile: LivingCareProfile = {
+      ...baseProfile,
+      residentId: "kenji-sato",
+      personSummary: { value: "Kenji summary text.", citations: [], updatedInVersion: 1 },
+    };
+
+    await saveProfileVersion(baseProfile);
+    await saveProfileVersion(kenjiProfile);
+
+    expect(await loadLatestProfile("aiko-mori")).toEqual(baseProfile);
+    expect(await loadLatestProfile("kenji-sato")).toEqual(kenjiProfile);
+    expect((await loadLatestProfile("aiko-mori"))?.personSummary.value).not.toBe(
+      (await loadLatestProfile("kenji-sato"))?.personSummary.value,
+    );
+  });
+
+  it("does not leak proposals across residentId filters", async () => {
+    const kenjiProposal: ProfileUpdateProposal = {
+      ...baseProposal,
+      id: "prop-900",
+      residentId: "kenji-sato",
+    };
+
+    await saveProposal(baseProposal);
+    await saveProposal(kenjiProposal);
+
+    expect(await loadProposals("aiko-mori")).toEqual([baseProposal]);
+    expect(await loadProposals("kenji-sato")).toEqual([kenjiProposal]);
+    expect(await loadProposals()).toHaveLength(2);
+  });
+});

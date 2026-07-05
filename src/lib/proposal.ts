@@ -1,4 +1,4 @@
-import { loadResident } from "./data";
+import { DEFAULT_RESIDENT_ID, loadResident } from "./data";
 import { loadGBrainKnowledgeContext } from "./gbrain";
 import { lintClinicalLanguage } from "./lint";
 import { parseFieldValue, runProfileUpdateAgent, type ProfileAgentInput, type ProposedChanges } from "./profile-agent";
@@ -14,8 +14,6 @@ import {
 } from "./schema";
 import { needsCorrectiveProposalRerun, verifyProposalChanges } from "./verify";
 
-const RESIDENT_ID = "aiko-mori";
-
 const correctiveInstruction =
   "Previous changes had unsupported or fabricated citations. Only propose a change if every citation quote (top-level " +
   "and, for list items, item-level) is copied verbatim from the provided record bodies.";
@@ -28,6 +26,7 @@ export type ProposalEnvelope = {
 };
 
 export type GenerateProposalOptions = {
+  residentId?: string;
   recordIds?: string[];
   hasOpenAIKey?: boolean;
   now?: () => number;
@@ -71,14 +70,16 @@ export async function generateProposal(options: GenerateProposalOptions = {}): P
     throw new Error("OPENAI_API_KEY is required.");
   }
 
+  const residentId = options.residentId ?? DEFAULT_RESIDENT_ID;
+
   const [resident, allRecords, currentProfile] = await Promise.all([
-    loadResident(),
-    loadRecords(RESIDENT_ID),
-    loadLatestProfile(RESIDENT_ID),
+    loadResident(residentId),
+    loadRecords(residentId),
+    loadLatestProfile(residentId),
   ]);
 
   if (!currentProfile) {
-    throw new Error(`No Living Care Profile found for resident: ${RESIDENT_ID}`);
+    throw new Error(`No Living Care Profile found for resident: ${residentId}`);
   }
 
   let newRecords: CareRecord[];
@@ -120,7 +121,7 @@ export async function generateProposal(options: GenerateProposalOptions = {}): P
 
   const proposal = ProfileUpdateProposalSchema.parse({
     id: await nextProposalId(),
-    residentId: RESIDENT_ID,
+    residentId,
     baseVersion: currentProfile.version,
     triggeredBy: newRecords.map((record) => record.id),
     createdAt: new Date().toISOString(),

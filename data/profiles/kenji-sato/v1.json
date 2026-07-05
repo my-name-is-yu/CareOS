@@ -1,0 +1,71 @@
+{
+  "residentId": "kenji-sato",
+  "version": 1,
+  "approvedBy": "seed-migration",
+  "approvedAt": "2026-07-05T00:00:00Z",
+  "personSummary": {
+    "value": "Former railway engineer who values a fixed daily routine. Enjoys listening to radio baseball broadcasts most afternoons and speaking about his years working on the trains. Takes a short walk before dinner every day and prefers that walk to happen at the same time. Becomes unsettled when the daily schedule changes without warning, especially around evening bath time. Appetite has been a little lighter than usual recently.",
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "recentChanges": {
+    "value": [
+      {
+        "description": "A recent note mentions eating less than half of his dinner.",
+        "direction": "changed",
+        "citations": []
+      }
+    ],
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "calmingApproaches": {
+    "value": [
+      "Ask him about his years working on the railway and let him describe the routes and schedules.",
+      "Turn on the radio baseball broadcast if one is airing.",
+      "Keep the pre-dinner walk at the same time each day."
+    ],
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "knownTriggers": {
+    "value": [
+      "Sudden changes to the daily schedule without advance notice.",
+      "Evening bath time, especially if it is moved earlier or later than usual."
+    ],
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "careRecommendations": {
+    "value": [
+      {
+        "situation": "Daily schedule needs to change (appointments, staffing, etc.)",
+        "approach": "Tell him about the change well in advance and repeat it once close to the time.",
+        "citations": []
+      },
+      {
+        "situation": "Evening bath time approaching",
+        "approach": "Keep the bath at its usual time when possible, and talk about trains or the radio broadcast to ease the transition.",
+        "citations": []
+      }
+    ],
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "handoffBrief": {
+    "value": "Kenji Sato does best with a fixed daily routine; keep the pre-dinner walk and evening bath at consistent times, warn him ahead of any schedule changes, and use train talk or radio baseball to calm him. Watch appetite - recent dinners have been lighter than usual.",
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "trendFlags": {
+    "value": [
+      {
+        "claim": "Watch for continued reduced appetite at dinner.",
+        "severity": "watch",
+        "citations": []
+      }
+    ],
+    "citations": [],
+    "updatedInVersion": 1
+  }
+}

@@ -48,7 +48,7 @@ describe("G-Brain query building", () => {
   it("includes resident identifiers and current note text in search queries", () => {
     expect(
       buildGBrainQuery(
-        { name: "Aiko Mori", age: 84, room: "A-101", timezone: "Asia/Tokyo", language: "ja" },
+        { id: "aiko-mori", name: "Aiko Mori", age: 84, room: "A-101", timezone: "Asia/Tokyo", language: "ja" },
         "Refused medication after corridor noise.",
       ),
     ).toContain("resident Aiko Mori room A-101");
@@ -56,6 +56,7 @@ describe("G-Brain query building", () => {
 });
 
 const resident = {
+  id: "aiko-mori",
   name: "Aiko Mori",
   age: 84,
   room: "A-101",
@@ -141,6 +142,7 @@ describe("realtime instructions builder", () => {
       },
     }));
     vi.doMock("../src/lib/data", () => ({
+      DEFAULT_RESIDENT_ID: "aiko-mori",
       loadResident: async () => resident,
     }));
     vi.doMock("../src/lib/profiles", () => ({
@@ -151,7 +153,8 @@ describe("realtime instructions builder", () => {
     }));
 
     const { POST } = await import("../src/app/api/realtime/session/route");
-    const response = await POST();
+    const request = new Request("http://localhost/api/realtime/session", { method: "POST" });
+    const response = await POST(request as never);
     const body = await response.json();
 
     expect(create).toHaveBeenCalled();
@@ -189,6 +192,7 @@ describe("realtime instructions builder", () => {
       },
     }));
     vi.doMock("../src/lib/data", () => ({
+      DEFAULT_RESIDENT_ID: "aiko-mori",
       loadResident: async () => resident,
     }));
     vi.doMock("../src/lib/profiles", () => ({
@@ -199,7 +203,8 @@ describe("realtime instructions builder", () => {
     }));
 
     const { POST } = await import("../src/app/api/realtime/session/route");
-    const response = await POST();
+    const request = new Request("http://localhost/api/realtime/session", { method: "POST" });
+    const response = await POST(request as never);
     const body = await response.json();
 
     expect(response.status).toBe(500);

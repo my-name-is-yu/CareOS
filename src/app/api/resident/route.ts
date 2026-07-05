@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
-import { loadResident } from "../../../lib/data";
+import { DEFAULT_RESIDENT_ID, loadResident } from "../../../lib/data";
 import { loadLatestProfile } from "../../../lib/profiles";
 import { loadRecords } from "../../../lib/records";
 
-const RESIDENT_ID = "aiko-mori";
+export async function GET(request: NextRequest) {
+  const residentId = request.nextUrl.searchParams.get("residentId") ?? DEFAULT_RESIDENT_ID;
 
-export async function GET() {
   const [resident, profile, records] = await Promise.all([
-    loadResident(),
-    loadLatestProfile(RESIDENT_ID),
-    loadRecords(RESIDENT_ID),
+    loadResident(residentId),
+    loadLatestProfile(residentId),
+    loadRecords(residentId),
   ]);
 
   const recentRecords = [...records]

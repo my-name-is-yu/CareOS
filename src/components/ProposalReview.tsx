@@ -15,6 +15,7 @@ import type {
 } from "@/src/lib/careos-types";
 
 type Props = {
+  residentId: string;
   refreshToken: number;
   onApproved: () => void;
 };
@@ -301,7 +302,7 @@ function FieldDiffCard({
   );
 }
 
-export function ProposalReview({ refreshToken, onApproved }: Props) {
+export function ProposalReview({ residentId, refreshToken, onApproved }: Props) {
   const [proposals, setProposals] = useState<ProfileUpdateProposal[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -310,13 +311,13 @@ export function ProposalReview({ refreshToken, onApproved }: Props) {
 
   const refresh = useCallback(() => {
     globalThis
-      .fetch("/api/proposals")
+      .fetch(`/api/proposals?residentId=${encodeURIComponent(residentId)}`)
       .then((response) => (response.ok ? response.json() : null))
       .then((data: { proposals?: ProfileUpdateProposal[] } | null) => {
         if (data?.proposals) setProposals(data.proposals);
       })
       .catch(() => {});
-  }, []);
+  }, [residentId]);
 
   useEffect(() => {
     refresh();

@@ -19,7 +19,18 @@ export default [
         console: "readonly",
         Buffer: "readonly",
         Request: "readonly",
-        Response: "readonly"
+        Response: "readonly",
+        Event: "readonly",
+        performance: "readonly",
+        requestAnimationFrame: "readonly",
+        cancelAnimationFrame: "readonly",
+        HTMLCanvasElement: "readonly",
+        WebGL2RenderingContext: "readonly",
+        WebGLProgram: "readonly",
+        WebGLShader: "readonly",
+        WebGLTexture: "readonly",
+        WebGLVertexArrayObject: "readonly",
+        WebGLUniformLocation: "readonly"
       }
     },
     rules: {

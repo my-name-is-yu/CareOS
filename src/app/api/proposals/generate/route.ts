@@ -5,7 +5,12 @@ import { generateProposal } from "../../../../lib/proposal";
 
 export const runtime = "nodejs";
 
-const GenerateProposalBodySchema = z.object({ recordIds: z.array(z.string().min(1)).optional() }).strict();
+const GenerateProposalBodySchema = z
+  .object({
+    residentId: z.string().min(1).optional(),
+    recordIds: z.array(z.string().min(1)).optional(),
+  })
+  .strict();
 
 function isValidationLikeError(message: string): boolean {
   return (
@@ -25,15 +30,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  let recordIds: string[] | undefined;
+  let parsedBody: z.infer<typeof GenerateProposalBodySchema>;
   try {
-    recordIds = GenerateProposalBodySchema.parse(rawBody).recordIds;
+    parsedBody = GenerateProposalBodySchema.parse(rawBody);
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request body." }, { status: 400 });
   }
 
   try {
-    const envelope = await generateProposal({ recordIds });
+    const envelope = await generateProposal({ residentId: parsedBody.residentId, recordIds: parsedBody.recordIds });
     return NextResponse.json(envelope);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to generate proposal.";

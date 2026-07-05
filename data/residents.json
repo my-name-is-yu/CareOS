@@ -1,0 +1,18 @@
+[
+  {
+    "id": "aiko-mori",
+    "name": "Aiko Mori",
+    "age": 84,
+    "room": "A-101",
+    "timezone": "Asia/Tokyo",
+    "language": "ja"
+  },
+  {
+    "id": "kenji-sato",
+    "name": "Kenji Sato",
+    "age": 79,
+    "room": "B-203",
+    "timezone": "Asia/Tokyo",
+    "language": "ja"
+  }
+]

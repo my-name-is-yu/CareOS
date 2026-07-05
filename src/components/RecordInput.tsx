@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { CareRecord, RecordType } from "@/src/lib/careos-types";
 
 type Props = {
+  residentId: string;
   onCreated: (record: CareRecord) => void;
 };
 
@@ -17,7 +18,7 @@ const recordTypeOptions: Array<{ value: RecordType; label: string }> = [
   { value: "incident_report", label: "Incident Report" },
 ];
 
-export function RecordInput({ onCreated }: Props) {
+export function RecordInput({ residentId, onCreated }: Props) {
   const [type, setType] = useState<RecordType>("nurse_observation");
   const [body, setBody] = useState("");
   const [authorName, setAuthorName] = useState("");
@@ -32,6 +33,7 @@ export function RecordInput({ onCreated }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          residentId,
           type,
           body,
           author: authorName.trim() ? { role: "nurse", name: authorName.trim() } : undefined,
@@ -63,7 +65,7 @@ export function RecordInput({ onCreated }: Props) {
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Describe the observation, memory, medication event, or incident."
-        rows={5}
+        rows={4}
       />
       <input
         type="text"
@@ -71,9 +73,25 @@ export function RecordInput({ onCreated }: Props) {
         onChange={(e) => setAuthorName(e.target.value)}
         placeholder="Author name (optional)"
       />
-      <div className="input-actions">
-        <button type="button" onClick={submit} disabled={loading || !body.trim()}>
-          Add record
+      <div className="record-composer-actions">
+        <button
+          type="button"
+          className="icon-button-camera"
+          title="Photo records coming soon"
+          aria-label="Attach a photo (coming soon)"
+          disabled
+        >
+          📷
+        </button>
+        <button
+          type="button"
+          className="submit-orb-button"
+          onClick={submit}
+          disabled={loading || !body.trim()}
+          aria-label="Add care record"
+          title="Add care record"
+        >
+          ↑
         </button>
       </div>
       {error ? <p className="muted-line">{error}</p> : null}

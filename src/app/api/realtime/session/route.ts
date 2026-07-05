@@ -1,25 +1,38 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import OpenAI from "openai";
 
-import { loadResident } from "../../../../lib/data";
+import { DEFAULT_RESIDENT_ID, loadResident } from "../../../../lib/data";
 import { loadLatestProfile } from "../../../../lib/profiles";
 import { buildRealtimeInstructions, realtimeModel, type RealtimeClientSecretResponse } from "../../../../lib/realtime";
 import { loadRecords } from "../../../../lib/records";
 
 export const runtime = "nodejs";
 
-const RESIDENT_ID = "aiko-mori";
+async function resolveResidentId(request: NextRequest): Promise<string> {
+  const fromQuery = new globalThis.URL(request.url).searchParams.get("residentId");
+  if (fromQuery) return fromQuery;
 
-export async function POST() {
+  try {
+    const text = await request.text();
+    if (!text) return DEFAULT_RESIDENT_ID;
+    const body = JSON.parse(text) as { residentId?: string };
+    return body.residentId ?? DEFAULT_RESIDENT_ID;
+  } catch {
+    return DEFAULT_RESIDENT_ID;
+  }
+}
+
+export async function POST(request: NextRequest) {
   if (!globalThis.process.env.OPENAI_API_KEY) {
     return NextResponse.json({ error: "OPENAI_API_KEY is required for realtime voice." }, { status: 500 });
   }
 
   try {
+    const residentId = await resolveResidentId(request);
     const [resident, profile, records] = await Promise.all([
-      loadResident(),
-      loadLatestProfile(RESIDENT_ID),
-      loadRecords(RESIDENT_ID),
+      loadResident(residentId),
+      loadLatestProfile(residentId),
+      loadRecords(residentId),
     ]);
     const recentRecords = [...records]
       .sort((a, b) => (a.occurredAt < b.occurredAt ? 1 : a.occurredAt > b.occurredAt ? -1 : 0))

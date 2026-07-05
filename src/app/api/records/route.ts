@@ -1,15 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
+import { DEFAULT_RESIDENT_ID } from "../../../lib/data";
 import { syncRecordToGBrain } from "../../../lib/gbrain";
 import { appendRecord, loadRecords, nextRecordId } from "../../../lib/records";
 import { RecordTypeSchema } from "../../../lib/schema";
 
 export const runtime = "nodejs";
 
-const RESIDENT_ID = "aiko-mori";
-
 const CreateRecordBodySchema = z.object({
+  residentId: z.string().min(1).optional(),
   type: RecordTypeSchema,
   body: z.string().min(1),
   author: z
@@ -21,8 +21,9 @@ const CreateRecordBodySchema = z.object({
   occurredAt: z.string().datetime().optional(),
 });
 
-export async function GET() {
-  const records = await loadRecords(RESIDENT_ID);
+export async function GET(request: NextRequest) {
+  const residentId = request.nextUrl.searchParams.get("residentId") ?? DEFAULT_RESIDENT_ID;
+  const records = await loadRecords(residentId);
   const sorted = [...records].sort((a, b) => (a.occurredAt < b.occurredAt ? 1 : a.occurredAt > b.occurredAt ? -1 : 0));
   return NextResponse.json({ records: sorted });
 }
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     const id = await nextRecordId(body.type);
     const record = await appendRecord({
       id,
-      residentId: RESIDENT_ID,
+      residentId: body.residentId ?? DEFAULT_RESIDENT_ID,
       type: body.type,
       occurredAt: body.occurredAt ?? new Date().toISOString(),
       author: body.author ?? { role: "nurse" },

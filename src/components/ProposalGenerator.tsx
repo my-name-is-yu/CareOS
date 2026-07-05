@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { ProfileUpdateProposal } from "@/src/lib/careos-types";
 
 type Props = {
+  residentId: string;
   onGenerated: (proposal: ProfileUpdateProposal | null) => void;
 };
 
@@ -15,7 +16,7 @@ type GenerateResponse = {
   error?: string;
 };
 
-export function ProposalGenerator({ onGenerated }: Props) {
+export function ProposalGenerator({ residentId, onGenerated }: Props) {
   const [loading, setLoading] = useState(false);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +31,7 @@ export function ProposalGenerator({ onGenerated }: Props) {
       const response = await globalThis.fetch("/api/proposals/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ residentId }),
       });
       const data = (await response.json().catch(() => ({}))) as GenerateResponse;
       if (!response.ok) throw new Error(data.error ?? "Unable to generate proposal.");

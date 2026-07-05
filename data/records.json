@@ -157,5 +157,60 @@
       "name": "Yamada"
     },
     "body": "Gait was steady with walker support during the daytime routine; resident responded well to short sentences and either-or choices offered during the walk."
+  },
+  {
+    "id": "rec-ks-001",
+    "residentId": "kenji-sato",
+    "type": "soap_note",
+    "occurredAt": "2026-06-24T18:00:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Kondo"
+    },
+    "body": "Resident took his usual pre-dinner walk at the regular time and seemed content. Ate only about half of his dinner tonight."
+  },
+  {
+    "id": "rec-ks-002",
+    "residentId": "kenji-sato",
+    "type": "soap_note",
+    "occurredAt": "2026-06-27T19:15:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Ito"
+    },
+    "body": "Evening bath was moved earlier than usual due to staffing; resident became agitated and asked repeatedly why the schedule changed. Settled after staff talked with him about his years on the railway."
+  },
+  {
+    "id": "rec-ks-003",
+    "residentId": "kenji-sato",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-29T15:30:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Kondo"
+    },
+    "body": "Resident sat by the radio listening to the baseball broadcast for most of the afternoon and hummed along with the crowd noise; appeared calm and engaged."
+  },
+  {
+    "id": "rec-ks-004",
+    "residentId": "kenji-sato",
+    "type": "medication_record",
+    "occurredAt": "2026-06-30T20:00:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Ito"
+    },
+    "body": "Evening medication administered on schedule after the usual pre-dinner walk. Resident accepted without hesitation once his routine was kept intact."
+  },
+  {
+    "id": "rec-ks-005",
+    "residentId": "kenji-sato",
+    "type": "family_memory",
+    "occurredAt": "2026-06-22T14:00:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Haruto Sato"
+    },
+    "body": "My father spent over thirty years as a railway engineer and still lights up when anyone asks him about the old train routes. He also never misses a baseball broadcast on the radio if he can help it."
   }
 ]

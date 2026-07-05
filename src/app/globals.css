@@ -32,20 +32,27 @@ button, input, textarea { font: inherit; }
   padding: 20px;
   display: grid;
   gap: 14px;
+  grid-template-columns: 240px minmax(0, 1fr) 340px;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "header header header"
+    "sidebar center rail";
+  overflow-x: hidden;
 }
 
-.patient-bar, .shift-view, .panel, .memory-rail {
+.patient-bar, .shift-view, .panel, .memory-rail, .patient-list {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel);
 }
 
-.patient-bar {
+.patient-bar, .shell-header {
   display: flex;
   justify-content: space-between;
   gap: 16px;
   align-items: center;
   padding: 16px 18px;
+  grid-area: header;
 }
 
 .eyebrow {
@@ -77,14 +84,54 @@ h3 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0; color: va
 
 .patient-meta span { background: var(--panel-subtle); color: var(--muted); border: 1px solid var(--border); }
 
-.workspace {
+.patient-list {
+  grid-area: sidebar;
+  padding: 16px;
   display: grid;
-  grid-template-columns: minmax(300px, 0.78fr) minmax(0, 1.35fr) minmax(280px, 340px);
-  gap: 14px;
-  align-items: start;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+  overflow-y: auto;
 }
 
-.left-rail, .main-column { display: grid; gap: 14px; min-width: 0; }
+.patient-list-items { display: grid; gap: 8px; }
+
+.patient-list-item {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+  background: var(--panel-subtle);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-weight: 500;
+}
+
+.patient-list-item-name { font-weight: 700; }
+.patient-list-item-room, .patient-list-item-status { color: var(--muted); font-size: 0.82rem; font-weight: 500; }
+
+.patient-list-item.selected {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.patient-list-item.selected .patient-list-item-name { color: var(--accent); }
+
+.center-column {
+  grid-area: center;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.intake-rail {
+  grid-area: rail;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  align-content: start;
+}
+
 .panel { padding: 16px; }
 .shift-view { padding: 16px; }
 
@@ -163,6 +210,42 @@ h3 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0; color: va
   min-height: 110px;
 }
 
+.record-composer-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.icon-button-camera {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: var(--panel-subtle);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 1.05rem;
+}
+
+.submit-orb-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
 .record-list { display: grid; gap: 8px; margin-top: 12px; }
 .record-list-item {
   border: 1px solid var(--border);
@@ -192,6 +275,55 @@ button.secondary { background: #e4e9eb; color: var(--text); }
 button:disabled { opacity: 0.55; }
 
 .voice-agent { display: grid; gap: 12px; }
+
+.voice-orb-wrap { display: grid; gap: 8px; justify-items: center; padding: 8px 0 4px; }
+
+.voice-orb {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 4px 16px rgba(15, 91, 85, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.voice-orb:hover:not(:disabled) { transform: scale(1.03); }
+
+.voice-orb.connecting { opacity: 0.9; }
+
+.voice-orb.connected {
+  animation: voice-orb-pulse 1.6s ease-in-out infinite;
+}
+
+.voice-orb-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+}
+
+@keyframes voice-orb-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(15, 91, 85, 0.45); }
+  70% { box-shadow: 0 0 0 18px rgba(15, 91, 85, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(15, 91, 85, 0); }
+}
+
+.voice-status-text { color: var(--muted); font-size: 0.85rem; font-weight: 650; text-transform: uppercase; }
+
+.voice-controls-row { display: flex; gap: 8px; justify-content: center; }
 
 .connection-dot {
   min-width: 94px;
@@ -414,17 +546,38 @@ button.small { padding: 5px 10px; font-size: 0.78rem; border-radius: 6px; }
 .status-badge.status-rejected { background: rgba(138, 31, 17, 0.1); color: var(--danger); }
 
 @media (max-width: 1120px) {
-  .workspace { grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr); }
-  .review-rail { grid-column: 1 / -1; }
+  .app-shell { grid-template-columns: 220px minmax(0, 1fr) 300px; }
+}
+
+@media (max-width: 1000px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "header"
+      "sidebar"
+      "center"
+      "rail";
+  }
+
+  .patient-list { overflow-y: visible; }
+  .patient-list-items {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 2px;
+  }
+  .patient-list-item { flex: 0 0 auto; min-width: 160px; }
 }
 
 @media (max-width: 820px) {
-  .workspace, .shift-grid, .field-grid, .diff-grid { grid-template-columns: 1fr; }
+  .shift-grid, .field-grid, .diff-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
   .app-shell { padding: 10px; }
-  .patient-bar { align-items: flex-start; flex-direction: column; }
+  .patient-bar, .shell-header { align-items: flex-start; flex-direction: column; }
   .patient-meta { justify-content: flex-start; }
   .panel, .shift-view, .patient-bar { padding: 14px; }
   .shift-header, .voice-header { align-items: flex-start; flex-direction: column; }

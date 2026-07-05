@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { RealtimeAgent, RealtimeSession, type RealtimeItem } from "@openai/agents-realtime";
 import { realtimeModel, realtimeWebRtcUrl, type RealtimeClientSecretResponse } from "@/src/lib/realtime";
+import { ShaderOrb, type ShaderOrbTheme } from "@/src/components/ShaderOrb";
 
 type VoiceState = "idle" | "connecting" | "connected" | "error";
 
@@ -10,6 +11,10 @@ type TranscriptMessage = {
   id: string;
   role: "user" | "assistant";
   text: string;
+};
+
+type Props = {
+  residentId: string;
 };
 
 function messageText(item: RealtimeItem): TranscriptMessage | null {
@@ -37,7 +42,14 @@ function realtimeErrorMessage(error: unknown): string {
   return error.message;
 }
 
-export function RealtimeVoiceAgent() {
+const statusLabel: Record<VoiceState, string> = {
+  idle: "Tap to start voice support",
+  connecting: "Connecting...",
+  connected: "Listening",
+  error: "Connection failed",
+};
+
+export function RealtimeVoiceAgent({ residentId }: Props) {
   const [voiceState, setVoiceState] = useState<VoiceState>("idle");
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState("");
@@ -57,7 +69,9 @@ export function RealtimeVoiceAgent() {
         throw new Error("Microphone access is not available in this browser.");
       }
 
-      const response = await globalThis.fetch("/api/realtime/session", { method: "POST" });
+      const response = await globalThis.fetch(`/api/realtime/session?residentId=${encodeURIComponent(residentId)}`, {
+        method: "POST",
+      });
       if (!response.ok) {
         const body = (await response.json().catch(() => null)) as { error?: string } | null;
         throw new Error(body?.error ?? "Could not create realtime session.");
@@ -117,29 +131,49 @@ export function RealtimeVoiceAgent() {
   }
 
   const connected = voiceState === "connected";
+  const connecting = voiceState === "connecting";
+
+  function handleOrbClick() {
+    if (connected || connecting) {
+      disconnect();
+    } else {
+      connect();
+    }
+  }
+
+  const orbTheme: ShaderOrbTheme =
+    voiceState === "connected"
+      ? "orange"
+      : voiceState === "connecting"
+        ? "purple"
+        : voiceState === "error"
+          ? "crimson"
+          : "blue";
 
   return (
     <section className="voice-agent panel">
-      <div className="voice-header">
-        <div>
-          <p className="eyebrow">Realtime care agent</p>
-          <h2>Voice support</h2>
-        </div>
-        <span className={`connection-dot ${connected ? "connected" : ""}`}>{voiceState}</span>
+      <div className="voice-orb-wrap">
+        <button
+          type="button"
+          className={`voice-orb ${connected ? "connected" : ""} ${connecting ? "connecting" : ""} ${voiceState === "error" ? "errored" : ""}`}
+          onClick={handleOrbClick}
+          disabled={connecting}
+          aria-pressed={connected}
+          aria-label={connected ? "Disconnect voice support" : "Connect voice support"}
+        >
+          <ShaderOrb size={96} theme={orbTheme} />
+          <span className="voice-orb-icon" aria-hidden="true">
+            {connected ? "◉" : "🎙"}
+          </span>
+        </button>
+        <p className="voice-status-text">{statusLabel[voiceState]}</p>
       </div>
 
-      <div className="input-actions">
-        {connected ? (
-          <button type="button" className="secondary" onClick={disconnect}>Disconnect</button>
-        ) : (
-          <button type="button" onClick={connect} disabled={voiceState === "connecting"}>
-            {voiceState === "connecting" ? "Connecting..." : "Connect mic"}
-          </button>
-        )}
-        <button type="button" className="secondary" onClick={toggleMute} disabled={!connected}>
+      <div className="voice-controls-row">
+        <button type="button" className="secondary small" onClick={toggleMute} disabled={!connected}>
           {muted ? "Unmute" : "Mute"}
         </button>
-        <button type="button" className="secondary" onClick={interrupt} disabled={!connected}>
+        <button type="button" className="secondary small" onClick={interrupt} disabled={!connected}>
           Interrupt
         </button>
       </div>
