@@ -15,6 +15,9 @@ const clinicalPatterns = [
   /\bstart (?:a )?(?:drug|medication|medicine)\b/i,
   /\bstop (?:the )?(?:drug|medication|medicine)\b/i,
   /\btreat(?:ment)? plan\b/i,
+  /\bmust (?:administer|give|take)\b/i,
+  /\bwithout nurse review\b/i,
+  /\bno nurse check(?:s)? needed\b/i,
 ];
 
 function collectStrings(value: unknown): string[] {

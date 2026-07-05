@@ -14,6 +14,7 @@ afterEach(async () => {
   globalThis.process.chdir(originalCwd);
   globalThis.process.env.OPENAI_API_KEY = originalKey;
   vi.restoreAllMocks();
+  vi.resetModules();
 });
 
 const validResult: CompileResult = {
@@ -27,11 +28,11 @@ const validResult: CompileResult = {
 };
 
 describe("pipeline schema", () => {
-  it("parses the frozen CompileResult shape", () => {
+  it("parses the Product v1 CompileResult shape", () => {
     expect(CompileResultSchema.parse(validResult)).toEqual(validResult);
   });
 
-  it("parses the API envelope shape", () => {
+  it("parses the API envelope without alternate compile state", () => {
     const envelope = { result: validResult, verified: true, warnings: [], latencyMs: 12 };
     expect(CompileEnvelopeSchema.parse(envelope)).toEqual(envelope);
   });
@@ -45,7 +46,7 @@ describe("patient memory data", () => {
     expect(history.some((entry) => entry.text.includes("corridor"))).toBe(true);
   });
 
-  it("loads resident data", async () => {
+  it("loads resident identity without embedding memory", async () => {
     const resident = await loadResident();
     expect(resident).toEqual({
       name: "Aiko Mori",
@@ -76,7 +77,7 @@ describe("citation verification", () => {
     expect(normalizeCitationText("  “Walked   SLOWER”  ")).toBe("\"walked slower\"");
   });
 
-  it("drops unverifiable citations", () => {
+  it("drops unverifiable citations and keeps supported flags", () => {
     const result = verifyCompileResult(
       {
         ...validResult,
@@ -95,40 +96,30 @@ describe("citation verification", () => {
       },
       [{ note_id: "note-001", text: "Slower gait observed." }],
     );
+
     expect(result.verified).toBe(false);
     expect(result.result.drift_flags).toHaveLength(1);
+    expect(result.result.drift_flags[0]?.citations).toEqual([{ note_id: "note-001", quote: "Slower gait observed." }]);
   });
 });
 
-describe("lint warnings", () => {
-  it("warns on diagnostic or prescribing language", () => {
-    expect(
-      lintClinicalLanguage({
-        observations: [],
-        drift_flags: [],
-        handoff_brief: {
-          summary: "Diagnose dementia and prescribe medication.",
-          watch_items: [],
-          context_the_note_missed: [],
-        },
-      } satisfies CompileResult),
-    ).toEqual([
-      "Review language for clinical, diagnostic, or prescribing claims.",
-    ]);
-  });
+describe("clinical safety warnings", () => {
+  it("warns on diagnostic, prescribing, dosage, and autonomous-care language", () => {
+    const warning = "Review language for clinical, diagnostic, or prescribing claims.";
 
-  it.each([
-    "Consider a diagnosis of vascular issues.",
-    "Prescribing a new plan for the resident.",
-    "Increase the dosage per the chart.",
-    "Signs of underlying disease noted.",
-    "Symptoms consistent with parkinson's.",
-    "Behavior consistent with alzheimer's.",
-    "Notable progression of dementia this week.",
-  ])("warns on spec keyword: %s", (text) => {
-    expect(lintClinicalLanguage({ summary: text })).toEqual([
-      "Review language for clinical, diagnostic, or prescribing claims.",
-    ]);
+    for (const text of [
+      "Consider a diagnosis of vascular issues.",
+      "Prescribing a new plan for the resident.",
+      "Increase the dosage per the chart.",
+      "Signs of underlying disease noted.",
+      "Symptoms consistent with parkinson's.",
+      "Behavior consistent with alzheimer's.",
+      "Notable progression of dementia this week.",
+      "The resident must administer the medication without nurse review.",
+      "No nurse checks needed tonight.",
+    ]) {
+      expect(lintClinicalLanguage({ summary: text })).toEqual([warning]);
+    }
   });
 
   it("does not warn on clean operational language", () => {
@@ -136,7 +127,7 @@ describe("lint warnings", () => {
   });
 });
 
-describe("compile route helpers", () => {
+describe("compile entrypoint contract", () => {
   const resident = {
     name: "Aiko Mori",
     age: 84,
@@ -170,6 +161,16 @@ describe("compile route helpers", () => {
     expect(assembled.current_note).toBe("New note");
     expect(assembled.context.resident).toEqual(resident);
     expect(assembled.context.memory).toEqual(memory);
+    expect(Object.keys(assembled.context.memory).sort()).toEqual([
+      "baseline",
+      "calming_approaches",
+      "communication_cues",
+      "family_context_notes",
+      "known_triggers",
+      "preferences",
+      "recent_history",
+      "watch_patterns",
+    ]);
     expect(assembled.context.history).toEqual(history);
     expect(assembled.context.instruction).toContain("Memory is always on");
     expect(assembled.output_contract).toContain('note_id to "live"');
@@ -185,7 +186,7 @@ describe("realtime session route", () => {
   it("builds dementia-care instructions with patient memory fields and refusal boundaries", () => {
     const instructions = buildRealtimeInstructions(
       {
-        name: "Default Resident",
+        name: "Aiko Mori",
         age: 84,
         room: "A-101",
         timezone: "Asia/Tokyo",
@@ -204,7 +205,7 @@ describe("realtime session route", () => {
       [{ note_id: "note-001", date: "2026-07-01", shift: "day", author: "Yamada", text: "Walked slower than baseline." }],
     );
 
-    expect(instructions).toContain("Default Resident");
+    expect(instructions).toContain("Aiko Mori");
     expect(instructions).toContain("Usually walks slowly with walker support.");
     expect(instructions).toContain("Use short calm prompts.");
     expect(instructions).toContain("Prefers a quiet room.");
@@ -220,15 +221,35 @@ describe("realtime session route", () => {
 
   it("returns only ephemeral client secret fields and never the server API key", async () => {
     globalThis.process.env.OPENAI_API_KEY = "sk-server-secret";
+    const create = vi.fn(async () => ({
+      value: "ek_ephemeral_client_secret",
+      expires_at: 1234567890,
+      type: "realtime",
+    }));
+    vi.doMock("openai", () => ({
+      default: class MockOpenAI {
+        realtime = { clientSecrets: { create } };
+      },
+    }));
+
+    const { POST } = await import("../src/app/api/realtime/session/route");
+    const response = await POST();
+    const body = await response.json();
+
+    expect(create).toHaveBeenCalled();
+    expect(body).toEqual({ clientSecret: { value: "ek_ephemeral_client_secret", expiresAt: 1234567890 } });
+    expect(body.clientSecret.value).toMatch(/^ek_/);
+    expect(JSON.stringify(body)).not.toContain("sk-server-secret");
+    expect(JSON.stringify(body)).not.toContain("OPENAI_API_KEY");
+  });
+
+  it("refuses non-ephemeral realtime client secret responses", async () => {
+    globalThis.process.env.OPENAI_API_KEY = "sk-server-secret";
     vi.doMock("openai", () => ({
       default: class MockOpenAI {
         realtime = {
           clientSecrets: {
-            create: vi.fn(async () => ({
-              value: "ek_ephemeral_client_secret",
-              expires_at: 1234567890,
-              type: "realtime",
-            })),
+            create: vi.fn(async () => ({ value: "sk_server_secret", expires_at: 1234567890 })),
           },
         };
       },
@@ -238,9 +259,8 @@ describe("realtime session route", () => {
     const response = await POST();
     const body = await response.json();
 
-    expect(body).toEqual({ clientSecret: { value: "ek_ephemeral_client_secret", expiresAt: 1234567890 } });
-    expect(body.clientSecret.value).toMatch(/^ek_/);
+    expect(response.status).toBe(500);
+    expect(body.error).toContain("not ephemeral");
     expect(JSON.stringify(body)).not.toContain("sk-server-secret");
-    expect(JSON.stringify(body)).not.toContain("OPENAI_API_KEY");
   });
 });
