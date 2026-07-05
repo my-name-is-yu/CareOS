@@ -17,14 +17,16 @@ const emptyMemory: PatientMemory = {
   watch_patterns: [],
 };
 
+const defaultResident: Resident = {
+  name: "Aiko Mori",
+  age: 84,
+  room: "A-101",
+  timezone: "Asia/Tokyo",
+  language: "ja",
+};
+
 export default function HomePage() {
-  const [resident, setResident] = useState<Resident>({
-    name: "Aiko Mori",
-    age: 84,
-    room: "A-101",
-    timezone: "Asia/Tokyo",
-    language: "ja",
-  });
+  const [resident, setResident] = useState<Resident>(defaultResident);
   const [memory, setMemory] = useState<PatientMemory>(emptyMemory);
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState<CompilePayload | null>(null);
@@ -49,31 +51,31 @@ export default function HomePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ note: note.note }),
       });
-      if (!response.ok) throw new Error("compile failed");
+      if (!response.ok) throw new Error("Unable to compile handoff.");
       setPayload((await response.json()) as CompilePayload);
-    } catch {
-      setError("Compile failed. Check server configuration and retry.");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to compile handoff.");
     } finally {
       setLoading(false);
     }
   }
 
   const residentLabel = useMemo(() => `${resident.name} - Room ${resident.room}`, [resident]);
-  const watchItems = payload?.result.handoff_brief.watch_items ?? memory.watch_patterns;
+  const watchItems = payload?.result.handoff_brief.watch_items.length
+    ? payload.result.handoff_brief.watch_items
+    : memory.watch_patterns;
 
   return (
     <main className="app-shell">
-      <section className="hero compact">
+      <section className="patient-bar">
         <div>
-          <p className="eyebrow">CareOS nursing workspace</p>
-          <h1>{resident.name}</h1>
-          <p className="lede">{resident.room} - {resident.language} - {resident.timezone}</p>
+          <p className="eyebrow">Current resident</p>
+          <h1>{residentLabel}</h1>
         </div>
-        <div className="resident-card">
-          <span>Today&apos;s watch</span>
-          {watchItems.slice(0, 3).map((item) => (
-            <strong key={item}>{item}</strong>
-          ))}
+        <div className="patient-meta" aria-label="resident details">
+          <span>{resident.age} years</span>
+          <span>{resident.language.toUpperCase()}</span>
+          <span>{resident.timezone}</span>
         </div>
       </section>
 
@@ -82,35 +84,38 @@ export default function HomePage() {
           <RealtimeVoiceAgent />
           <NoteInput loading={loading} onSubmit={submit} />
         </div>
-        <div className="right-rail">
-          {error ? <div className="warning-badge">{error}</div> : null}
-          <ShiftView loading={loading} payload={payload} residentLabel={residentLabel} />
-          <section className="patient-memory panel">
-            <p className="eyebrow">Patient memory</p>
-            <div className="memory-columns">
-              <div>
-                <h3>Care approach</h3>
-                <ul>
-                  {memory.communication_cues.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
-                  {memory.calming_approaches.slice(0, 2).map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </div>
-              <div>
-                <h3>Preferences and triggers</h3>
-                <ul>
-                  {memory.preferences.slice(0, 2).map((item) => <li key={item}>{item}</li>)}
-                  {memory.known_triggers.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </div>
-              <div>
-                <h3>Recent changes</h3>
-                <ul>
-                  {memory.recent_history.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </div>
-            </div>
-          </section>
+        <div className="main-column">
+          <ShiftView loading={loading} payload={payload} resident={resident} memory={memory} error={error} />
         </div>
+        <aside className="memory-rail" aria-label="patient memory">
+          <div className="rail-section">
+            <p className="eyebrow">Patient memory</p>
+            <h2>{resident.name}</h2>
+            <ul className="memory-list">
+              {memory.baseline.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+          <div className="rail-section">
+            <h3>Care approach</h3>
+            <ul className="memory-list">
+              {memory.communication_cues.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
+              {memory.calming_approaches.slice(0, 2).map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+          <div className="rail-section">
+            <h3>Preferences and triggers</h3>
+            <ul className="memory-list">
+              {memory.preferences.slice(0, 2).map((item) => <li key={item}>{item}</li>)}
+              {memory.known_triggers.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+          <div className="rail-section">
+            <h3>Today&apos;s watch</h3>
+            <ul className="memory-list">
+              {watchItems.slice(0, 4).map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+        </aside>
       </section>
     </main>
   );

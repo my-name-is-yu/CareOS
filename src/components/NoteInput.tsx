@@ -15,16 +15,16 @@ export function NoteInput({ onSubmit, loading }: Props) {
 
   return (
     <section className="note-input panel">
-      <p className="eyebrow">Observation entry</p>
+      <p className="eyebrow">Observation note</p>
       <textarea
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        placeholder="Enter the current observation for handoff review."
+        placeholder="Enter the current resident observation for handoff review."
         rows={7}
       />
       <div className="input-actions">
         <button type="button" onClick={() => onSubmit({ note })} disabled={loading || !note.trim()}>
-          Compile handoff
+          Create handoff
         </button>
       </div>
     </section>
