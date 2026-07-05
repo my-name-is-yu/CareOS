@@ -1,0 +1,10 @@
+.next
+node_modules
+coverage
+dist
+.env
+.env.local
+*.log
+tsconfig.tsbuildinfo
+data/cache/on.json
+data/cache/off.json
