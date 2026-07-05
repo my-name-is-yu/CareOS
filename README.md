@@ -1,15 +1,41 @@
-# CareOS
+# MemoryPath
 
-CareOS Product v1 is a nurse-facing dementia-care workspace for turning shift observations into memory-backed handoff support. The product helps staff compare a current observation against patient memory, verify cited evidence, and surface missing nursing checks for human review.
+_(repo: CareOS)_
+
+> MemoryPath uses GBrain, built with the Agents SDK, to continuously learn from fragmented dementia care records and generate a Living Care Profile that helps every caregiver provide personalized care in seconds.
+
+## The problem
+
+Years of patient knowledge end up buried across hundreds of SOAP notes, nurse observations, family memories, medication records, and incident reports. Every new caregiver — every new shift, every agency nurse, every float staff member — has to start from scratch, re-reading a stack of fragmented notes to figure out what actually works for this resident.
+
+MemoryPath is not an AI chatbot. It is a system that automatically prepares the work a nurse already has to do — reviewing new records, spotting what changed, learning what calms and what triggers a resident — while the nurse reviews and approves every change before it becomes part of the record.
+
+## What the next nurse gets
+
+Instead of reading hundreds of notes, the next nurse instantly gets:
+
+1. **Who this resident is** — background, personality, what matters to them.
+2. **What changed recently** — deviations from baseline, with citations to the source records.
+3. **What calms or triggers them** — calming approaches and known triggers learned from records.
+4. **Personalized care recommendations** — the accumulated "what works for this resident," operational support rather than medical judgment.
+5. **A shift handoff brief** — auto-generated from the approved profile and recent records.
+6. **Behavior trend flags** — long-term pattern shifts, flagged with verbatim citations.
+
+All six are surfaced from a single artifact: the **Living Care Profile** — versioned, cited, and never updated without a nurse's approval.
 
 ## Setup
 
-1. Install dependencies with `npm install`.
-2. Create `.env.local` with `OPENAI_API_KEY=...`.
-3. Start the app with `npm run dev`.
-4. Open the workspace, connect the Realtime care agent if microphone support is needed, or submit a typed resident observation.
+1. Install dependencies: `npm install`.
+2. Create `.env.local` with:
+   ```env
+   OPENAI_API_KEY=your_openai_api_key_here
+   ```
+3. Start the app: `npm run dev`.
+4. Open the workspace to submit care records, generate profile update proposals, review/approve them in the Next Nurse view, and optionally connect the Realtime voice agent.
 
-Optional G-Brain-backed memory:
+### Optional: GBrain-backed memory
+
+By default MemoryPath runs entirely on the local JSON stores under `data/`. Set `CAREOS_MEMORY_BACKEND=gbrain` to also treat GBrain as a long-term knowledge layer that the reasoning pipeline consults:
 
 ```env
 CAREOS_MEMORY_BACKEND=gbrain
@@ -18,7 +44,7 @@ GBRAIN_TIMEOUT_MS=4000
 OPENAI_API_KEY=...
 ```
 
-For the local hackathon setup, install and initialize G-Brain, then import the bundled synthetic patient brain. `GBRAIN_OPERATION` defaults to `search`; set it to `think` if you want CareOS to pass G-Brain's synthesized answer instead of raw search output.
+Install and initialize GBrain, then import the bundled synthetic patient brain:
 
 ```bash
 bun install -g github:garrytan/gbrain
@@ -27,21 +53,28 @@ gbrain import brain
 gbrain search "Aiko Mori medication refusal corridor noise"
 ```
 
-## Product v1 Routes
+With `CAREOS_MEMORY_BACKEND=gbrain` set, every new care record is also written to `brain/residents/records/<record-id>.md` and re-imported into GBrain as it is appended (`POST /api/records`), so GBrain's knowledge stays current with the append-only record store. `GBRAIN_OPERATION` defaults to `search`; set it to `think` to have MemoryPath pass GBrain's synthesized answer instead of raw search output. If GBrain is missing, times out, or fails for any reason, MemoryPath falls back to JSON-only reasoning so the app keeps working.
 
-- `GET /api/resident`: returns resident identity, history, and patient memory for the workspace.
-- `POST /api/compile` with `{ "note": string }`: compiles the note with resident profile, patient memory, and historical notes always included.
-- `POST /api/realtime/session`: creates an OpenAI Realtime ephemeral client secret and returns `{ clientSecret: { value, expiresAt } }` without exposing the server API key.
+## API routes
 
-## Patient Memory
+- `GET /api/resident` — resident identity, the latest approved Living Care Profile, and recent care records, for the workspace UI.
+- `POST /api/records` — appends a new `CareRecord` (SOAP note, nurse observation, family memory, medication record, or incident report) to the append-only store, then best-effort syncs it to GBrain.
+- `GET /api/records` — lists all care records for the resident, most recent first.
+- `POST /api/proposals/generate` — runs the reasoning pipeline against new (or explicitly listed) records and the current profile, verifies citations, and saves a `ProfileUpdateProposal` awaiting nurse review.
+- `GET /api/proposals` — lists all proposals for the resident, most recent first.
+- `POST /api/proposals/[id]/approve` — applies a proposal's changes (or nurse-edited changes) to the Living Care Profile, creating the next version.
+- `POST /api/proposals/[id]/reject` — marks a proposal rejected; the profile is left untouched.
+- `POST /api/realtime/session` — creates an OpenAI Realtime ephemeral client secret, grounded on the approved profile and recent records, without exposing the server API key.
 
-`data/resident.json` contains resident identity fields plus a nested `memory` object. `loadResident()` returns only identity fields, and `loadMemory()` returns the Product v1 patient memory: baseline, communication cues, preferences, known triggers, calming approaches, family/context notes, recent history, and watch patterns. Compile and Realtime agent instructions always include this memory together with historical note evidence.
+## Data & stores
 
-When `CAREOS_MEMORY_BACKEND=gbrain` is set, CareOS queries the local G-Brain CLI for resident-specific knowledge and passes the full returned G-Brain context into compile and Realtime prompts. The app does not extract selected G-Brain sections into a custom memory store. The existing `PatientMemory` fields remain as display/fallback data from `data/resident.json`. The `brain/` directory is the import source for G-Brain, not a parallel runtime database. If G-Brain is missing, times out, or returns no usable resident knowledge, CareOS falls back to JSON-only memory so the demo path stays available.
+- `data/records.json` — the append-only `CareRecord` store. Records are immutable once written; every profile field's citations point back into this file.
+- `data/profiles/<residentId>/vN.json` — the versioned Living Care Profile. Each nurse approval writes a new, immutable version file; nothing is ever overwritten in place.
+- `data/proposals.json` — every `ProfileUpdateProposal` ever generated, with its status (`proposed`, `approved`, `rejected`, or `edited_and_approved`).
 
 ## Safety Contract
 
-- CareOS does not diagnose, prescribe, suggest dosage changes, or make autonomous care decisions.
-- Drift flags must cite historical note evidence with verbatim note quotes.
-- Unsupported citations are removed before the response is returned.
-- The workspace warns on unsafe clinical language and asks nurses to verify missing checks instead of treating model output as an order.
+- MemoryPath does not diagnose, prescribe, suggest dosage changes, or make autonomous care decisions.
+- Every proposed profile change must carry **verbatim citations** back to source care records; citations (and, for structured fields, individual list items) that can't be verified against a record's body are dropped before a proposal is ever shown to a nurse.
+- **The Living Care Profile never changes without nurse approval.** The reasoning pipeline only ever produces a proposal; applying it to the profile requires an explicit `POST /api/proposals/[id]/approve` call.
+- Unsafe clinical language (diagnosis, prescribing, dosage, disease-naming, or "no nurse review needed" phrasing) is surfaced as a warning for the reviewing nurse, never silently dropped or treated as an order.
