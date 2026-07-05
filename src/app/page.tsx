@@ -18,7 +18,7 @@ export default function HomePage() {
   useEffect(() => {
     globalThis.fetch("/api/resident")
       .then((response) => (response.ok ? response.json() : null))
-      .then((data: Resident | null) => data && setResident(data))
+      .then((data: { resident: Resident } | null) => data?.resident && setResident(data.resident))
       .catch(() => {});
   }, []);
 
