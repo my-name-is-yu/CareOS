@@ -8,3 +8,4 @@ dist
 tsconfig.tsbuildinfo
 data/cache/on.json
 data/cache/off.json
+.gstack/
