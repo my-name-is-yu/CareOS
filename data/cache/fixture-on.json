@@ -27,7 +27,9 @@
     "handoff_brief": {
       "summary": "Track gait slowness and repeat medication refusal across recent shifts.",
       "watch_items": ["mobility", "med adherence", "noise sensitivity"],
-      "context_the_note_missed": ["The record shows repeated refusal language and corridor-noise sensitivity that should stay linked."]
+      "context_the_note_missed": [
+        "The record shows repeated refusal language and corridor-noise sensitivity that should stay linked."
+      ]
     }
   },
   "verified": true,

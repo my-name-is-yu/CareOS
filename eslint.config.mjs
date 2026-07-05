@@ -8,7 +8,15 @@ export default [
     languageOptions: {
       parser: tsParser,
       ecmaVersion: "latest",
-      sourceType: "module"
+      sourceType: "module",
+      globals: {
+        File: "readonly",
+        FormData: "readonly",
+        process: "readonly",
+        window: "readonly",
+        navigator: "readonly",
+        document: "readonly"
+      }
     },
     rules: {
       "@typescript-eslint/no-unused-vars": "off"
