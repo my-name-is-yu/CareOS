@@ -1,12 +1,22 @@
-import type { CompilePayload, Resident } from "@/src/lib/careos-types";
+import type { CompilePayload, PatientMemory, Resident } from "@/src/lib/careos-types";
 
 export const defaultResident: Resident = {
   name: "Default Resident",
   age: 84,
   room: "A-101",
-  baseline_traits: ["slow gait", "prefers calm communication", "uses walker"],
   timezone: "Asia/Tokyo",
   language: "ja"
+};
+
+export const defaultMemory: PatientMemory = {
+  baseline: ["slow gait", "uses walker", "prefers calm communication"],
+  communication_cues: ["Use short calm prompts.", "Allow extra time for response."],
+  preferences: ["Quiet room.", "Steady walker support."],
+  known_triggers: ["Corridor noise can increase agitation."],
+  calming_approaches: ["Reduce corridor noise.", "Keep the room quiet.", "Re-approach with calm wording."],
+  family_context_notes: ["No family context notes loaded."],
+  recent_history: ["Resident refused evening medication twice this week."],
+  watch_patterns: ["Slower gait near hallway turns.", "Repeated evening medication refusal.", "Noise sensitivity."]
 };
 
 export const fixtureOn: CompilePayload = {

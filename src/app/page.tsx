@@ -5,11 +5,12 @@ import { ModeToggle } from "@/src/components/ModeToggle";
 import { NoteInput } from "@/src/components/NoteInput";
 import { RealtimeVoiceAgent } from "@/src/components/RealtimeVoiceAgent";
 import { ShiftView } from "@/src/components/ShiftView";
-import type { CompilePayload, Resident } from "@/src/lib/careos-types";
-import { defaultResident, fixtureOff, fixtureOn } from "@/src/lib/careos-fixtures";
+import type { CompilePayload, PatientMemory, Resident } from "@/src/lib/careos-types";
+import { defaultMemory, defaultResident, fixtureOff, fixtureOn } from "@/src/lib/careos-fixtures";
 
 export default function HomePage() {
   const [resident, setResident] = useState<Resident>(defaultResident);
+  const [memory, setMemory] = useState<PatientMemory>(defaultMemory);
   const [mode, setMode] = useState<"off" | "on">("off");
   const [loading, setLoading] = useState(false);
   const [offPayload, setOffPayload] = useState<CompilePayload | null>(fixtureOff);
@@ -19,7 +20,10 @@ export default function HomePage() {
   useEffect(() => {
     globalThis.fetch("/api/resident")
       .then((response) => (response.ok ? response.json() : null))
-      .then((data: { resident: Resident } | null) => data?.resident && setResident(data.resident))
+      .then((data: { resident: Resident; memory?: PatientMemory } | null) => {
+        if (data?.resident) setResident(data.resident);
+        if (data?.memory) setMemory(data.memory);
+      })
       .catch(() => {});
   }, []);
 
@@ -87,7 +91,7 @@ export default function HomePage() {
           <span>Resident</span>
           <strong>{resident.name}</strong>
           <span>{residentLabel}</span>
-          <span>{resident.baseline_traits.join(" • ")}</span>
+          <span>{memory.baseline.join(" • ")}</span>
         </div>
       </section>
 

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { readCachedCompile, writeCachedCompile, loadHistory, loadResident } from "../src/lib/data";
+import { readCachedCompile, writeCachedCompile, loadHistory, loadMemory, loadResident } from "../src/lib/data";
 import { CompileEnvelopeSchema, CompileResultSchema, type CompileResult } from "../src/lib/schema";
 import { buildCompileInput, compileFromBody } from "../src/lib/compile";
 import { lintClinicalLanguage } from "../src/lib/lint";
@@ -49,7 +49,20 @@ describe("data fixtures", () => {
   });
 
   it("loads resident data", async () => {
-    await expect(loadResident()).resolves.toMatchObject({ name: "Default Resident" });
+    const resident = await loadResident();
+    expect(resident).toMatchObject({ name: "Default Resident" });
+    expect(resident).not.toHaveProperty("memory");
+  });
+
+  it("loads patient memory for realtime care context", async () => {
+    await expect(loadMemory()).resolves.toMatchObject({
+      baseline: expect.arrayContaining(["slow gait"]),
+      communication_cues: expect.arrayContaining([expect.stringContaining("calm")]),
+      known_triggers: expect.arrayContaining([expect.stringContaining("Corridor noise")]),
+      calming_approaches: expect.arrayContaining([expect.stringContaining("quiet")]),
+      recent_history: expect.arrayContaining([expect.stringContaining("medication")]),
+      watch_patterns: expect.arrayContaining([expect.stringContaining("gait")]),
+    });
   });
 });
 
@@ -136,7 +149,6 @@ describe("compile route helpers", () => {
     name: "Default Resident",
     age: 84,
     room: "A-101",
-    baseline_traits: ["slow gait"],
     timezone: "Asia/Tokyo",
     language: "ja",
   };
@@ -168,23 +180,40 @@ describe("compile route helpers", () => {
 });
 
 describe("realtime session route", () => {
-  it("builds dementia-care instructions with resident memory and refusal boundaries", () => {
+  it("builds dementia-care instructions with patient memory fields and refusal boundaries", () => {
     const instructions = buildRealtimeInstructions(
       {
         name: "Default Resident",
         age: 84,
         room: "A-101",
-        baseline_traits: ["slow gait"],
         timezone: "Asia/Tokyo",
         language: "ja",
+      },
+      {
+        baseline: ["Usually walks slowly with walker support."],
+        communication_cues: ["Use short calm prompts."],
+        preferences: ["Prefers a quiet room."],
+        known_triggers: ["Corridor noise."],
+        calming_approaches: ["Close the door and re-approach calmly."],
+        family_context_notes: ["Daughter visits on weekends."],
+        recent_history: ["Refused evening medication twice this week."],
+        watch_patterns: ["Slower gait near hallway turns."],
       },
       [{ note_id: "note-001", date: "2026-07-01", shift: "day", author: "Yamada", text: "Walked slower than baseline." }],
     );
 
     expect(instructions).toContain("Default Resident");
-    expect(instructions).toContain("Walked slower than baseline.");
+    expect(instructions).toContain("Usually walks slowly with walker support.");
+    expect(instructions).toContain("Use short calm prompts.");
+    expect(instructions).toContain("Prefers a quiet room.");
+    expect(instructions).toContain("Corridor noise.");
+    expect(instructions).toContain("Close the door and re-approach calmly.");
+    expect(instructions).toContain("Daughter visits on weekends.");
+    expect(instructions).toContain("Refused evening medication twice this week.");
+    expect(instructions).toContain("Slower gait near hallway turns.");
     expect(instructions).toContain("Refuse diagnosis, prescribing");
     expect(instructions).toContain("Draft concise handoff text");
+    expect(instructions).not.toContain("Baseline traits");
   });
 
   it("returns only ephemeral client secret fields and never the server API key", async () => {
