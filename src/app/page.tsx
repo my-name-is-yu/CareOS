@@ -83,6 +83,7 @@ export default function HomePage() {
                   <div className="record-list-item" key={record.id}>
                     <span>
                       {record.type.replace(/_/g, " ")} - {new Date(record.occurredAt).toLocaleString()}
+                      {record.author.name ? ` - ${record.author.name} (${record.author.role})` : ` - ${record.author.role}`}
                     </span>
                     <p>{record.body}</p>
                   </div>
