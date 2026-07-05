@@ -4,6 +4,7 @@ import { loadHistory, loadMemory, loadResident } from "../src/lib/data";
 import { CompileEnvelopeSchema, CompileResultSchema, type CompileResult } from "../src/lib/schema";
 import { buildCompileInput, compileFromBody, CompileRequestBodySchema } from "../src/lib/compile";
 import { lintClinicalLanguage } from "../src/lib/lint";
+import { buildRealtimeInstructions } from "../src/lib/realtime";
 import { normalizeCitationText, verifyCompileResult } from "../src/lib/verify";
 
 const originalCwd = globalThis.process.cwd();
@@ -177,5 +178,69 @@ describe("compile route helpers", () => {
   it("requires OpenAI for production compile", async () => {
     globalThis.process.env.OPENAI_API_KEY = "";
     await expect(compileFromBody({ note: "Local note" }, { hasOpenAIKey: false })).rejects.toThrow("OPENAI_API_KEY is required.");
+  });
+});
+
+describe("realtime session route", () => {
+  it("builds dementia-care instructions with patient memory fields and refusal boundaries", () => {
+    const instructions = buildRealtimeInstructions(
+      {
+        name: "Default Resident",
+        age: 84,
+        room: "A-101",
+        timezone: "Asia/Tokyo",
+        language: "ja",
+      },
+      {
+        baseline: ["Usually walks slowly with walker support."],
+        communication_cues: ["Use short calm prompts."],
+        preferences: ["Prefers a quiet room."],
+        known_triggers: ["Corridor noise."],
+        calming_approaches: ["Close the door and re-approach calmly."],
+        family_context_notes: ["Daughter visits on weekends."],
+        recent_history: ["Refused evening medication twice this week."],
+        watch_patterns: ["Slower gait near hallway turns."],
+      },
+      [{ note_id: "note-001", date: "2026-07-01", shift: "day", author: "Yamada", text: "Walked slower than baseline." }],
+    );
+
+    expect(instructions).toContain("Default Resident");
+    expect(instructions).toContain("Usually walks slowly with walker support.");
+    expect(instructions).toContain("Use short calm prompts.");
+    expect(instructions).toContain("Prefers a quiet room.");
+    expect(instructions).toContain("Corridor noise.");
+    expect(instructions).toContain("Close the door and re-approach calmly.");
+    expect(instructions).toContain("Daughter visits on weekends.");
+    expect(instructions).toContain("Refused evening medication twice this week.");
+    expect(instructions).toContain("Slower gait near hallway turns.");
+    expect(instructions).toContain("Refuse diagnosis, prescribing");
+    expect(instructions).toContain("Draft concise handoff text");
+    expect(instructions).not.toContain("Baseline traits");
+  });
+
+  it("returns only ephemeral client secret fields and never the server API key", async () => {
+    globalThis.process.env.OPENAI_API_KEY = "sk-server-secret";
+    vi.doMock("openai", () => ({
+      default: class MockOpenAI {
+        realtime = {
+          clientSecrets: {
+            create: vi.fn(async () => ({
+              value: "ek_ephemeral_client_secret",
+              expires_at: 1234567890,
+              type: "realtime",
+            })),
+          },
+        };
+      },
+    }));
+
+    const { POST } = await import("../src/app/api/realtime/session/route");
+    const response = await POST();
+    const body = await response.json();
+
+    expect(body).toEqual({ clientSecret: { value: "ek_ephemeral_client_secret", expiresAt: 1234567890 } });
+    expect(body.clientSecret.value).toMatch(/^ek_/);
+    expect(JSON.stringify(body)).not.toContain("sk-server-secret");
+    expect(JSON.stringify(body)).not.toContain("OPENAI_API_KEY");
   });
 });

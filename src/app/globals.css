@@ -27,7 +27,7 @@ html, body {
 
 body { min-height: 100vh; }
 
-button, textarea { font: inherit; }
+button, input, textarea { font: inherit; }
 
 .app-shell {
   min-height: 100vh;
@@ -137,7 +137,94 @@ button:disabled { opacity: 0.55; }
 
 .transcript label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
 
-.right-rail { display: grid; gap: 14px; }
+.left-rail, .right-rail { display: grid; gap: 14px; }
+
+.voice-agent {
+  display: grid;
+  gap: 14px;
+}
+
+.voice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+
+.connection-dot {
+  min-width: 94px;
+  text-align: center;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: rgba(24, 33, 43, 0.08);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.connection-dot.connected {
+  background: rgba(17, 94, 89, 0.12);
+  color: var(--accent);
+}
+
+.voice-error {
+  color: #8a1f11;
+  background: rgba(138, 31, 17, 0.08);
+  border-radius: 14px;
+  padding: 12px;
+  line-height: 1.45;
+}
+
+.fallback-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.fallback-row input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.9);
+  color: var(--text);
+  min-height: 46px;
+  padding: 0 14px;
+}
+
+.voice-history {
+  display: grid;
+  gap: 10px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.empty-history {
+  color: var(--muted);
+  background: rgba(24, 33, 43, 0.04);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.voice-message {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.72);
+  padding: 12px;
+}
+
+.voice-message span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.voice-message.assistant {
+  background: rgba(17, 94, 89, 0.06);
+}
 
 .segmented {
   display: grid;
@@ -235,4 +322,5 @@ blockquote { margin: 0; padding-left: 12px; border-left: 3px solid rgba(17, 94, 
   .app-shell { padding: 14px; }
   .hero, .panel, .shift-view { padding: 16px; }
   .shift-header { align-items: flex-start; flex-direction: column; }
+  .fallback-row { grid-template-columns: 1fr; }
 }

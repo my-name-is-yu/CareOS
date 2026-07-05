@@ -2,8 +2,20 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { NoteInput } from "@/src/components/NoteInput";
+import { RealtimeVoiceAgent } from "@/src/components/RealtimeVoiceAgent";
 import { ShiftView } from "@/src/components/ShiftView";
-import type { CompilePayload, Resident } from "@/src/lib/careos-types";
+import type { CompilePayload, PatientMemory, Resident } from "@/src/lib/careos-types";
+
+const emptyMemory: PatientMemory = {
+  baseline: [],
+  communication_cues: [],
+  preferences: [],
+  known_triggers: [],
+  calming_approaches: [],
+  family_context_notes: [],
+  recent_history: [],
+  watch_patterns: [],
+};
 
 export default function HomePage() {
   const [resident, setResident] = useState<Resident>({
@@ -11,8 +23,9 @@ export default function HomePage() {
     age: 84,
     room: "A-101",
     timezone: "Asia/Tokyo",
-    language: "ja"
+    language: "ja",
   });
+  const [memory, setMemory] = useState<PatientMemory>(emptyMemory);
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState<CompilePayload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +33,10 @@ export default function HomePage() {
   useEffect(() => {
     globalThis.fetch("/api/resident")
       .then((response) => (response.ok ? response.json() : null))
-      .then((data: { resident: Resident } | null) => data?.resident && setResident(data.resident))
+      .then((data: { resident?: Resident; memory?: PatientMemory } | null) => {
+        if (data?.resident) setResident(data.resident);
+        if (data?.memory) setMemory(data.memory);
+      })
       .catch(() => {});
   }, []);
 
@@ -31,7 +47,7 @@ export default function HomePage() {
       const response = await globalThis.fetch("/api/compile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note: note.note })
+        body: JSON.stringify({ note: note.note }),
       });
       if (!response.ok) throw new Error("compile failed");
       setPayload((await response.json()) as CompilePayload);
@@ -42,29 +58,58 @@ export default function HomePage() {
     }
   }
 
-  const residentLabel = useMemo(() => `${resident.name} · Room ${resident.room}`, [resident]);
+  const residentLabel = useMemo(() => `${resident.name} - Room ${resident.room}`, [resident]);
+  const watchItems = payload?.result.handoff_brief.watch_items ?? memory.watch_patterns;
 
   return (
     <main className="app-shell">
       <section className="hero compact">
         <div>
-          <p className="eyebrow">CareOS ops console</p>
-          <h1>Typed note to resident shift memory</h1>
-          <p className="lede">Live resident context, compiled note review, and patient memory in one operator-focused screen.</p>
+          <p className="eyebrow">CareOS nursing workspace</p>
+          <h1>{resident.name}</h1>
+          <p className="lede">{resident.room} - {resident.language} - {resident.timezone}</p>
         </div>
         <div className="resident-card">
-          <span>Resident</span>
-          <strong>{resident.name}</strong>
-          <span>{residentLabel}</span>
-          <span>{resident.language} · {resident.timezone}</span>
+          <span>Today&apos;s watch</span>
+          {watchItems.slice(0, 3).map((item) => (
+            <strong key={item}>{item}</strong>
+          ))}
         </div>
       </section>
 
       <section className="workspace">
-        <NoteInput loading={loading} onSubmit={submit} />
+        <div className="left-rail">
+          <RealtimeVoiceAgent />
+          <NoteInput loading={loading} onSubmit={submit} />
+        </div>
         <div className="right-rail">
           {error ? <div className="warning-badge">{error}</div> : null}
           <ShiftView loading={loading} payload={payload} residentLabel={residentLabel} />
+          <section className="patient-memory panel">
+            <p className="eyebrow">Patient memory</p>
+            <div className="memory-columns">
+              <div>
+                <h3>Care approach</h3>
+                <ul>
+                  {memory.communication_cues.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
+                  {memory.calming_approaches.slice(0, 2).map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+              <div>
+                <h3>Preferences and triggers</h3>
+                <ul>
+                  {memory.preferences.slice(0, 2).map((item) => <li key={item}>{item}</li>)}
+                  {memory.known_triggers.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+              <div>
+                <h3>Recent changes</h3>
+                <ul>
+                  {memory.recent_history.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+            </div>
+          </section>
         </div>
       </section>
     </main>
