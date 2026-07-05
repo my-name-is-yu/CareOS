@@ -1,11 +1,12 @@
 import { Agent, run } from "@openai/agents";
 
 import { CompileResultSchema, type CompileResult } from "./schema";
-import type { HistoryNote, Resident } from "./data";
+import type { HistoryNote, PatientMemory, Resident } from "./data";
 
 export type CompileInput = {
   note: string;
   resident: Resident;
+  memory: PatientMemory;
   history: HistoryNote[];
   extraInstruction?: string;
 };
@@ -30,9 +31,10 @@ export function assembleCompileInput(input: CompileInput): string {
       current_note: input.note,
       resident_memory: {
         resident: input.resident,
+        patient_memory: input.memory,
         history: input.history,
         instruction:
-          "Memory is always included. Compare the current note against resident profile and all history. Include drift flags only when each flag has verbatim historical citations copied from history text. In context_the_note_missed, surface missing nursing checks or context the incoming shift should verify.",
+          "Patient memory is always included. Compare the current note against baseline, communication cues, preferences, known triggers, calming approaches, family/context notes, recent history, watch patterns, and historical notes. Include drift flags only when each flag has verbatim historical citations copied from history text. In context_the_note_missed, surface missing nursing checks or context the incoming shift should verify.",
       },
       output_contract:
         'Return CompileResult JSON with observations, drift_flags, and handoff_brief. Categories are gait, sleep, appetite, agitation, medication, social, other. Severity is watch or attention. Every observation drawn from the current note must set note_id to "live"; observations drawn from history must use the real historical note_id.',

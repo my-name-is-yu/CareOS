@@ -2,7 +2,40 @@
   "name": "Default Resident",
   "age": 84,
   "room": "A-101",
-  "baseline_traits": ["slow gait", "prefers calm communication", "uses walker"],
   "timezone": "Asia/Tokyo",
-  "language": "ja"
+  "language": "ja",
+  "memory": {
+    "baseline": [
+      "Walks slowly with a walker and prefers staff to approach from the front.",
+      "Usually eats best in a quiet seat away from corridor traffic."
+    ],
+    "communication_cues": [
+      "Use short, calm sentences and allow extra time before repeating a question.",
+      "Responds well when staff explain each care step before touching equipment."
+    ],
+    "preferences": [
+      "Prefers warm tea after lunch.",
+      "Prefers the window-side chair for afternoon rest."
+    ],
+    "known_triggers": [
+      "Corridor noise during evening medication rounds.",
+      "Unfamiliar staff entering quickly without greeting."
+    ],
+    "calming_approaches": [
+      "Lower voice volume, reduce background noise, and offer a two-minute pause.",
+      "Invite family-context conversation before retrying routine care."
+    ],
+    "family_context_notes": [
+      "Daughter usually visits on Wednesday afternoons.",
+      "Family reports music from older piano lessons can help during anxious moments."
+    ],
+    "recent_history": [
+      "Several notes mention slower walking after lunch.",
+      "Medication refusal has appeared more than once when corridor noise is high."
+    ],
+    "watch_patterns": [
+      "Increasing hesitation near hallway turns.",
+      "Repeated medication refusal language with unfamiliar staff."
+    ]
+  }
 }

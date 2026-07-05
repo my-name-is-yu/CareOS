@@ -1,8 +1,15 @@
 import OpenAI from "openai";
 
 type RealtimeSessionResponse = {
-  client_secret?: unknown;
+  value?: unknown;
+  expires_at?: unknown;
+  expiresAt?: unknown;
   [key: string]: unknown;
+};
+
+type ClientSecret = {
+  value: string;
+  expiresAt: number;
 };
 
 type RealtimeClient = {
@@ -14,17 +21,17 @@ type RealtimeClient = {
   };
 };
 
-function stripServerKey(value: unknown, apiKey: string): unknown {
-  if (typeof value === "string") return value === apiKey ? undefined : value;
-  if (Array.isArray(value)) return value.map((item) => stripServerKey(item, apiKey)).filter((item) => item !== undefined);
-  if (!value || typeof value !== "object") return value;
+function normalizeClientSecret(session: RealtimeSessionResponse): ClientSecret {
+  if (typeof session.value !== "string" || !session.value.startsWith("ek_")) {
+    throw new Error("Realtime session response did not include an ephemeral client secret.");
+  }
 
-  return Object.fromEntries(
-    Object.entries(value)
-      .filter(([key]) => !["api_key", "apiKey", "OPENAI_API_KEY"].includes(key))
-      .map(([key, nested]) => [key, stripServerKey(nested, apiKey)])
-      .filter(([, nested]) => nested !== undefined),
-  );
+  const expiresAt = session.expiresAt ?? session.expires_at;
+  if (typeof expiresAt !== "number") {
+    throw new Error("Realtime session response did not include an ephemeral client secret expiration.");
+  }
+
+  return { value: session.value, expiresAt };
 }
 
 export async function createRealtimeSession(
@@ -32,7 +39,7 @@ export async function createRealtimeSession(
     apiKey?: string;
     client?: RealtimeClient;
   } = {},
-): Promise<Record<string, unknown>> {
+): Promise<{ clientSecret: ClientSecret }> {
   const apiKey = options.apiKey ?? globalThis.process?.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("OPENAI_API_KEY is required for realtime sessions.");
@@ -50,11 +57,10 @@ export async function createRealtimeSession(
       },
     },
   });
-  const { client_secret: clientSecret, ...rest } = session;
-
-  if (!clientSecret || typeof clientSecret !== "object") {
-    throw new Error("Realtime session response did not include an ephemeral client secret.");
+  const serverData = JSON.stringify(session);
+  if (serverData.includes(apiKey)) {
+    throw new Error("Realtime session response included server-only credentials.");
   }
 
-  return stripServerKey({ ...rest, client_secret: clientSecret }, apiKey) as Record<string, unknown>;
+  return { clientSecret: normalizeClientSecret(session) };
 }

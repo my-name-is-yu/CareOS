@@ -1,5 +1,5 @@
 import { assembleCompileInput, runCareCompiler, type CompileInput } from "./agent";
-import { loadHistory, loadResident } from "./data";
+import { loadHistory, loadMemory, loadResident } from "./data";
 import { lintClinicalLanguage } from "./lint";
 import { CompileEnvelopeSchema, type CompileEnvelope, type CompileResult } from "./schema";
 import { needsCorrectiveRerun, verifyCompileResult } from "./verify";
@@ -31,8 +31,8 @@ export async function compileFromBody(
     throw new Error("OPENAI_API_KEY is required for compile.");
   }
 
-  const [resident, history] = await Promise.all([loadResident(), loadHistory()]);
-  const baseInput = { note, resident, history };
+  const [resident, memory, history] = await Promise.all([loadResident(), loadMemory(), loadHistory()]);
+  const baseInput = { note, resident, memory, history };
   let rawResult: CompileResult = await runCareCompiler(baseInput);
   let verification = verifyCompileResult(rawResult, history);
 

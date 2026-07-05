@@ -4,7 +4,6 @@ export const defaultResident: Resident = {
   name: "Default Resident",
   age: 84,
   room: "A-101",
-  baseline_traits: ["slow gait", "prefers calm communication", "uses walker"],
   timezone: "Asia/Tokyo",
   language: "ja",
 };

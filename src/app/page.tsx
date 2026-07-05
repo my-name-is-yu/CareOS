@@ -47,7 +47,7 @@ export default function HomePage() {
           <span>Resident</span>
           <strong>{resident.name}</strong>
           <span>{residentLabel}</span>
-          <span>{resident.baseline_traits.join(" • ")}</span>
+          <span>{resident.language} · {resident.timezone}</span>
         </div>
       </section>
 
