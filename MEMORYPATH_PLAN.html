@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MemoryPath — Living Care Profile 設計 &amp; 移行計画</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --ink: #1f2a2e;
+    --muted: #5c6b70;
+    --accent: #0e7c6b;
+    --accent-soft: #e2f2ee;
+    --warn: #b45309;
+    --warn-soft: #fef3e2;
+    --line: #e3e1db;
+    --code-bg: #f0efeb;
+    --phase0: #6b7280; --phase1: #0e7c6b; --phase2: #2563eb;
+    --phase3: #7c3aed; --phase4: #db2777; --phase5: #d97706; --phase6: #475569;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14181a; --surface: #1d2427; --ink: #e8e6e1; --muted: #9aa8ad;
+      --accent: #34c4ab; --accent-soft: #12332d; --warn: #f0a04b; --warn-soft: #33260f;
+      --line: #2e373b; --code-bg: #232b2e;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.75;
+    padding: 0 0 6rem;
+  }
+  /* ---- language toggle ---- */
+  body[data-lang="ja"] .en { display: none !important; }
+  body[data-lang="en"] .ja { display: none !important; }
+  .lang-switch {
+    position: fixed; top: 1rem; right: 1rem; z-index: 10;
+    display: flex; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--surface); overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  }
+  .lang-switch button {
+    border: 0; background: transparent; color: var(--muted);
+    padding: .45rem 1rem; font-size: .85rem; font-weight: 600; cursor: pointer;
+  }
+  .lang-switch button.active { background: var(--accent); color: #fff; }
+
+  header {
+    background: linear-gradient(135deg, var(--accent-soft), var(--bg));
+    border-bottom: 1px solid var(--line);
+    padding: 3.5rem 1.5rem 2.5rem;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+  header .wrap { padding: 0; max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+  h1 { font-size: 1.9rem; letter-spacing: -.01em; }
+  .tagline { color: var(--muted); margin-top: .6rem; max-width: 46em; }
+  .pitch {
+    margin-top: 1.2rem; padding: 1rem 1.25rem; border-left: 4px solid var(--accent);
+    background: var(--surface); border-radius: 0 8px 8px 0; font-weight: 500;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+  section { margin-top: 3rem; }
+  h2 {
+    font-size: 1.35rem; padding-bottom: .5rem; border-bottom: 2px solid var(--accent);
+    display: inline-block; margin-bottom: 1rem;
+  }
+  h3 { font-size: 1.05rem; margin: 1.5rem 0 .5rem; }
+  p { margin: .6rem 0; }
+  ul, ol { margin: .6rem 0 .6rem 1.4rem; }
+  li { margin: .3rem 0; }
+  code {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: .85em;
+    background: var(--code-bg); padding: .1em .4em; border-radius: 4px;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px;
+    padding: 1rem 1.25rem; overflow-x: auto; margin: .8rem 0;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: .8rem; line-height: 1.6;
+  }
+  pre code { background: none; padding: 0; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.25rem 1.5rem; margin: 1rem 0;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .grid .card { margin: 0; }
+  .card h4 { font-size: .95rem; margin-bottom: .4rem; color: var(--accent); }
+  .safety { background: var(--warn-soft); border-color: var(--warn); }
+  .safety h4, .safety h3 { color: var(--warn); }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  th, td { text-align: left; padding: .55rem .7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+  .table-scroll { overflow-x: auto; }
+  /* ---- architecture diagram ---- */
+  .diagram { display: flex; flex-direction: column; gap: .4rem; margin: 1.2rem 0; }
+  .layer {
+    border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+    padding: .8rem 1.1rem;
+  }
+  .layer-title { font-weight: 700; font-size: .85rem; letter-spacing: .03em; color: var(--accent); }
+  .layer-boxes { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+  .box {
+    border: 1px solid var(--line); border-radius: 6px; padding: .3rem .7rem;
+    font-size: .82rem; background: var(--bg);
+  }
+  .box.hot { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
+  .arrow { text-align: center; color: var(--muted); font-size: 1rem; line-height: 1; }
+  /* ---- phases ---- */
+  .phase { border-left: 5px solid var(--accent); }
+  .phase .phase-head { display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; }
+  .phase-num {
+    font-size: .75rem; font-weight: 700; color: #fff; background: var(--accent);
+    border-radius: 999px; padding: .15rem .7rem; letter-spacing: .05em; white-space: nowrap;
+  }
+  .phase h3 { margin: 0; }
+  .phase[data-p="0"] { border-color: var(--phase0); } .phase[data-p="0"] .phase-num { background: var(--phase0); }
+  .phase[data-p="1"] { border-color: var(--phase1); } .phase[data-p="1"] .phase-num { background: var(--phase1); }
+  .phase[data-p="2"] { border-color: var(--phase2); } .phase[data-p="2"] .phase-num { background: var(--phase2); }
+  .phase[data-p="3"] { border-color: var(--phase3); } .phase[data-p="3"] .phase-num { background: var(--phase3); }
+  .phase[data-p="4"] { border-color: var(--phase4); } .phase[data-p="4"] .phase-num { background: var(--phase4); }
+  .phase[data-p="5"] { border-color: var(--phase5); } .phase[data-p="5"] .phase-num { background: var(--phase5); }
+  .phase[data-p="6"] { border-color: var(--phase6); } .phase[data-p="6"] .phase-num { background: var(--phase6); }
+  .done-when { font-size: .85rem; color: var(--muted); margin-top: .6rem; }
+  .done-when strong { color: var(--accent); }
+  footer { max-width: 960px; margin: 4rem auto 0; padding: 0 1.5rem; color: var(--muted); font-size: .8rem; }
+</style>
+</head>
+<body data-lang="ja">
+
+<div class="lang-switch">
+  <button id="btn-ja" class="active" onclick="setLang('ja')">日本語</button>
+  <button id="btn-en" onclick="setLang('en')">English</button>
+</div>
+
+<header>
+  <div class="wrap">
+    <h1>MemoryPath</h1>
+    <p class="tagline ja">Living Care Profile 設計 &amp; CareOS v1 からの移行計画</p>
+    <p class="tagline en">Living Care Profile architecture &amp; migration plan from CareOS v1</p>
+    <div class="pitch ja">
+      MemoryPath は Agents SDK で構築された GBrain を使い、断片化した認知症ケア記録から継続的に学習し、
+      すべてのケアギバーが数秒でパーソナライズされたケアを提供できる Living Care Profile を生成します。
+    </div>
+    <div class="pitch en">
+      MemoryPath uses GBrain, built with the Agents SDK, to continuously learn from fragmented dementia care
+      records and generate a Living Care Profile that helps every caregiver provide personalized care in seconds.
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ================================================================ -->
+<section>
+  <h2 class="ja">1. 課題の再定義</h2>
+  <h2 class="en">1. Reframing the Problem</h2>
+  <div class="ja">
+    <p>本質的な課題は「SOAPノートの要約」ではありません。<strong>何年分もの患者知識が数百のSOAPノートに埋もれていて、新しいケアギバーが毎回ゼロから始めなければならない</strong>ことです。</p>
+    <p>MemoryPath は AI チャットボットではなく、<strong>看護師がどのみちやらなければならない仕事を AI が自動で準備し、看護師がレビューして承認する</strong>システムです。次の看護師は数百のノートを読む代わりに、即座に以下を受け取ります。</p>
+  </div>
+  <div class="en">
+    <p>The core problem is not "summarizing SOAP notes." It is that <strong>years of patient knowledge are buried across hundreds of SOAP notes, and every new caregiver has to start from scratch</strong>.</p>
+    <p>MemoryPath is not an AI chatbot. It is an AI system that <strong>automatically prepares the work nurses already have to do, while the nurse reviews and approves it</strong>. Instead of reading hundreds of notes, the next nurse instantly gets:</p>
+  </div>
+  <div class="grid">
+    <div class="card"><h4 class="ja">人物像</h4><h4 class="en">Who this resident is</h4><p class="ja">その入居者がどんな人か — 経歴、性格、大切にしていること。</p><p class="en">Background, personality, what matters to them.</p></div>
+    <div class="card"><h4 class="ja">最近の変化</h4><h4 class="en">What changed recently</h4><p class="ja">ベースラインからの変化と、その根拠となる記録の引用。</p><p class="en">Deviations from baseline, with citations to source records.</p></div>
+    <div class="card"><h4 class="ja">落ち着く要因 / トリガー</h4><h4 class="en">What calms or triggers them</h4><p class="ja">記録から学習した、有効な鎮静アプローチと既知のトリガー。</p><p class="en">Calming approaches and known triggers learned from records.</p></div>
+    <div class="card"><h4 class="ja">パーソナライズされたケア推奨</h4><h4 class="en">Personalized care recommendations</h4><p class="ja">「この入居者には何が効くか」の蓄積。医療判断ではなく運用上の支援。</p><p class="en">Accumulated "what works for this resident." Operational support, not medical judgment.</p></div>
+    <div class="card"><h4 class="ja">シフト引き継ぎブリーフ</h4><h4 class="en">Shift handoff brief</h4><p class="ja">承認済みプロファイルと直近の記録から自動生成。</p><p class="en">Auto-generated from the approved profile and recent records.</p></div>
+    <div class="card"><h4 class="ja">行動トレンドフラグ</h4><h4 class="en">Behavior trend flags</h4><p class="ja">長期パターンの変化を検出し、逐語引用付きでフラグ。</p><p class="en">Long-term pattern shifts, flagged with verbatim citations.</p></div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section>
+  <h2 class="ja">2. ターゲットアーキテクチャ</h2>
+  <h2 class="en">2. Target Architecture</h2>
+  <p class="ja">中心的な成果物が「単発の compile 結果」から「継続更新される Living Care Profile」に変わります。GBrain はオプショナルなメモリバックエンドから、プロダクトの中核である推論レイヤーに昇格します。</p>
+  <p class="en">The central artifact shifts from a one-shot compile result to a continuously updated Living Care Profile. GBrain is promoted from an optional memory backend to the core reasoning layer of the product.</p>
+
+  <div class="diagram">
+    <div class="layer">
+      <div class="layer-title ja">入力ソース</div>
+      <div class="layer-title en">Input Sources</div>
+      <div class="layer-boxes">
+        <span class="box ja">SOAPノート</span><span class="box en">SOAP notes</span>
+        <span class="box ja">看護師の観察(テキスト / 音声)</span><span class="box en">Nurse observations (text / voice)</span>
+        <span class="box ja">家族の記憶</span><span class="box en">Family memories</span>
+        <span class="box ja">服薬記録</span><span class="box en">Medication records</span>
+        <span class="box ja">インシデントレポート</span><span class="box en">Incident reports</span>
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="layer">
+      <div class="layer-title ja">取り込みパイプライン</div>
+      <div class="layer-title en">Ingestion Pipeline</div>
+      <div class="layer-boxes">
+        <span class="box ja">正規化 → CareRecord(共通スキーマ)</span><span class="box en">Normalize → CareRecord (common schema)</span>
+        <span class="box ja">追記専用レコードストア</span><span class="box en">Append-only record store</span>
+        <span class="box ja">GBrain へインポート</span><span class="box en">Import into GBrain</span>
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="layer">
+      <div class="layer-title ja">GBrain 推論レイヤー(Agents SDK)</div>
+      <div class="layer-title en">GBrain Reasoning Layer (Agents SDK)</div>
+      <div class="layer-boxes">
+        <span class="box hot ja">長期パターン抽出</span><span class="box hot en">Long-term pattern extraction</span>
+        <span class="box hot ja">変化検出(ベースライン比較)</span><span class="box hot en">Change detection (vs. baseline)</span>
+        <span class="box hot ja">「何が効くか」の学習</span><span class="box hot en">"What works" learning</span>
+        <span class="box hot ja">トレンドフラグ生成</span><span class="box hot en">Trend flag generation</span>
+        <span class="box ja">出力 = 引用付きプロファイル更新<em>提案</em></span><span class="box en">Output = <em>proposed</em> profile updates with citations</span>
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="layer">
+      <div class="layer-title ja">安全レイヤー(既存の Safety Contract を維持)</div>
+      <div class="layer-title en">Safety Layer (existing Safety Contract preserved)</div>
+      <div class="layer-boxes">
+        <span class="box ja">逐語引用の検証(verify.ts)</span><span class="box en">Verbatim citation verification (verify.ts)</span>
+        <span class="box ja">危険な臨床表現のリント(lint.ts)</span><span class="box en">Unsafe clinical language lint (lint.ts)</span>
+        <span class="box ja">診断・処方・自律的ケア判断の禁止</span><span class="box en">No diagnosis, prescribing, or autonomous care decisions</span>
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="layer">
+      <div class="layer-title ja">レビュー &amp; 承認(Human-in-the-loop)</div>
+      <div class="layer-title en">Review &amp; Approval (Human-in-the-loop)</div>
+      <div class="layer-boxes">
+        <span class="box ja">提案された変更を diff 表示</span><span class="box en">Proposed changes shown as a diff</span>
+        <span class="box ja">看護師が承認 / 却下 / 修正</span><span class="box en">Nurse approves / rejects / edits</span>
+        <span class="box ja">承認で新しいプロファイルバージョンを確定</span><span class="box en">Approval commits a new profile version</span>
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="layer">
+      <div class="layer-title ja">Living Care Profile(バージョン管理・出所付き)</div>
+      <div class="layer-title en">Living Care Profile (versioned, with provenance)</div>
+      <div class="layer-boxes">
+        <span class="box hot ja">人物像</span><span class="box hot en">Person summary</span>
+        <span class="box hot ja">最近の変化</span><span class="box hot en">Recent changes</span>
+        <span class="box hot ja">鎮静要因 / トリガー</span><span class="box hot en">Calming factors / triggers</span>
+        <span class="box hot ja">ケア推奨</span><span class="box hot en">Care recommendations</span>
+        <span class="box hot ja">引き継ぎブリーフ</span><span class="box hot en">Handoff brief</span>
+        <span class="box hot ja">トレンドフラグ</span><span class="box hot en">Trend flags</span>
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="layer">
+      <div class="layer-title ja">提供面(承認済みプロファイルのみを使用)</div>
+      <div class="layer-title en">Delivery Surfaces (approved profile only)</div>
+      <div class="layer-boxes">
+        <span class="box ja">「次の看護師」ビュー(数秒で把握)</span><span class="box en">"Next nurse" view (grasp in seconds)</span>
+        <span class="box ja">シフト引き継ぎブリーフ</span><span class="box en">Shift handoff brief</span>
+        <span class="box ja">Realtime 音声エージェント</span><span class="box en">Realtime voice agent</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="ja">設計上の重要な決定</h3>
+  <h3 class="en">Key Design Decisions</h3>
+  <div class="ja">
+    <ul>
+      <li><strong>提案と承認の分離</strong>: 推論レイヤーはプロファイルを直接書き換えない。必ず「引用付きの更新提案」を出し、看護師の承認で初めて確定する。これが「チャットボットではない」ポジショニングの技術的な裏付けになる。</li>
+      <li><strong>プロファイルは追記専用レコードの投影(projection)</strong>: 元記録(CareRecord)は不変。プロファイルの全フィールドが元記録への引用を持ち、いつでも監査できる。</li>
+      <li><strong>バージョン管理</strong>: プロファイルは承認のたびに新バージョン。「先週と今週で何が変わったか」自体がプロダクト価値(= 最近の変化)になる。</li>
+      <li><strong>GBrain は知識ストア + 推論の両方</strong>: <code>gbrain import</code> でレコードを取り込み、<code>search</code> / <code>think</code> を Agents SDK エージェントのツールとして使う。既存の <code>src/lib/gbrain.ts</code> アダプタを拡張する。</li>
+      <li><strong>フォールバック維持</strong>: GBrain が使えない環境でも JSON ストアだけでデモが動く、という v1 の設計原則を引き継ぐ。</li>
+    </ul>
+  </div>
+  <div class="en">
+    <ul>
+      <li><strong>Separation of proposal and approval</strong>: the reasoning layer never writes the profile directly. It always emits "proposed updates with citations," and only a nurse's approval commits them. This is the technical backbone of the "not a chatbot" positioning.</li>
+      <li><strong>The profile is a projection of append-only records</strong>: source records (CareRecord) are immutable. Every profile field carries citations back to source records and is auditable at any time.</li>
+      <li><strong>Versioning</strong>: each approval creates a new profile version. "What changed between last week and this week" is itself product value (= recent changes).</li>
+      <li><strong>GBrain is both knowledge store and reasoning</strong>: ingest records via <code>gbrain import</code>, and use <code>search</code> / <code>think</code> as tools of Agents SDK agents. Extend the existing <code>src/lib/gbrain.ts</code> adapter.</li>
+      <li><strong>Fallback preserved</strong>: keep the v1 principle that the demo works with the JSON store alone when GBrain is unavailable.</li>
+    </ul>
+  </div>
+
+  <div class="card safety">
+    <h3 class="ja">安全契約(v1 から継承し、継続学習向けに拡張)</h3>
+    <h3 class="en">Safety Contract (inherited from v1, extended for continuous learning)</h3>
+    <ul class="ja">
+      <li>診断しない・処方しない・投薬量を提案しない・自律的なケア判断をしない。</li>
+      <li>プロファイル更新の全提案は元記録からの<strong>逐語引用</strong>を必須とし、検証で裏付けられない引用は削除する。</li>
+      <li><strong>看護師の承認なしにプロファイルは一切変わらない。</strong></li>
+      <li>危険な臨床表現には警告を出し、モデル出力を指示として扱わないよう促す。</li>
+    </ul>
+    <ul class="en">
+      <li>No diagnosis, no prescriptions, no dosage suggestions, no autonomous care decisions.</li>
+      <li>Every proposed profile update requires <strong>verbatim citations</strong> from source records; unsupported citations are removed by verification.</li>
+      <li><strong>The profile never changes without nurse approval.</strong></li>
+      <li>Warn on unsafe clinical language and never treat model output as an order.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section>
+  <h2 class="ja">3. データモデル(コア)</h2>
+  <h2 class="en">3. Core Data Model</h2>
+  <p class="ja">Zod スキーマとして <code>src/lib/schema.ts</code> に追加します(既存の <code>CompileResult</code> と並存)。</p>
+  <p class="en">Added to <code>src/lib/schema.ts</code> as Zod schemas (alongside the existing <code>CompileResult</code>).</p>
+<pre><code>// All input sources normalize into one record shape
+CareRecord {
+  id: string
+  residentId: string
+  type: "soap_note" | "nurse_observation" | "family_memory"
+      | "medication_record" | "incident_report"
+  occurredAt: string          // ISO timestamp
+  author: { role: string; name?: string }
+  body: string                // original text — immutable, citation source
+}
+
+Citation {
+  recordId: string
+  quote: string               // verbatim — verified against record body
+}
+
+ProfileField&lt;T&gt; {
+  value: T
+  citations: Citation[]
+  updatedInVersion: number
+}
+
+LivingCareProfile {
+  residentId: string
+  version: number
+  approvedBy: string          // nurse identity
+  approvedAt: string
+  personSummary:        ProfileField&lt;string&gt;
+  recentChanges:        ProfileField&lt;Change[]&gt;
+  calmingApproaches:    ProfileField&lt;string[]&gt;
+  knownTriggers:        ProfileField&lt;string[]&gt;
+  careRecommendations:  ProfileField&lt;Recommendation[]&gt;
+  handoffBrief:         ProfileField&lt;string&gt;
+  trendFlags:           ProfileField&lt;TrendFlag[]&gt;
+}
+
+ProfileUpdateProposal {
+  id: string
+  residentId: string
+  baseVersion: number         // version the diff applies to
+  triggeredBy: string[]       // record IDs that triggered this proposal
+  changes: FieldDiff[]        // per-field: before / after / citations / rationale
+  status: "proposed" | "approved" | "rejected" | "edited_and_approved"
+}</code></pre>
+</section>
+
+<!-- ================================================================ -->
+<section>
+  <h2 class="ja">4. 既存コードとの対応</h2>
+  <h2 class="en">4. Mapping to Existing Code</h2>
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th class="ja">既存(CareOS v1)</th><th class="en">Existing (CareOS v1)</th>
+        <th class="ja">新方向での役割</th><th class="en">Role in the New Direction</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>src/lib/compile.ts</code> + <code>/api/compile</code></td>
+          <td class="ja">単発 compile → 「観察の取り込み + プロファイル更新提案の生成」パスに再構成。ドリフト検出ロジックは変化検出エージェントに引き継ぐ。</td>
+          <td class="en">One-shot compile → refactored into "ingest observation + generate profile update proposal." Drift detection logic carries into the change-detection agent.</td></tr>
+      <tr><td><code>src/lib/gbrain.ts</code></td>
+          <td class="ja">フォールバック付きメモリ読み出し → 取り込み(import)と推論ツール(search / think)の両方を担う中核アダプタに拡張。</td>
+          <td class="en">Memory read with fallback → extended into the core adapter handling both ingestion (import) and reasoning tools (search / think).</td></tr>
+      <tr><td><code>src/lib/schema.ts</code></td>
+          <td class="ja"><code>CareRecord</code> / <code>LivingCareProfile</code> / <code>ProfileUpdateProposal</code> を追加。</td>
+          <td class="en">Add <code>CareRecord</code> / <code>LivingCareProfile</code> / <code>ProfileUpdateProposal</code>.</td></tr>
+      <tr><td><code>src/lib/verify.ts</code></td>
+          <td class="ja">そのまま流用 — 引用検証の対象を「ドリフトフラグ」から「全プロファイル更新提案」に拡大。</td>
+          <td class="en">Reused as-is — citation verification extends from drift flags to every profile update proposal.</td></tr>
+      <tr><td><code>src/lib/lint.ts</code></td>
+          <td class="ja">そのまま流用 — 提案とブリーフの両方に適用。</td>
+          <td class="en">Reused as-is — applied to both proposals and briefs.</td></tr>
+      <tr><td><code>src/lib/agent.ts</code></td>
+          <td class="ja">Agents SDK のプロファイル更新エージェント群(パターン抽出・変化検出・推奨学習)に発展。</td>
+          <td class="en">Evolves into the Agents SDK profile-update agents (pattern extraction, change detection, recommendation learning).</td></tr>
+      <tr><td><code>data/resident.json</code> + <code>data/history.json</code></td>
+          <td class="ja"><code>data/records.json</code>(CareRecord の追記専用ストア)+ <code>data/profiles/</code>(バージョン別プロファイル)に再編。既存データは初期レコードとして移行。</td>
+          <td class="en">Reorganized into <code>data/records.json</code> (append-only CareRecord store) + <code>data/profiles/</code> (versioned profiles). Existing data migrates as seed records.</td></tr>
+      <tr><td><code>src/components/ShiftView.tsx</code> ほか UI</td><td class="en" style="display:none"></td>
+          <td class="ja">「次の看護師」ビュー(プロファイル表示)+ レビュー &amp; 承認 UI に発展。<code>DriftFlag</code> はトレンドフラグ表示に転用。</td>
+          <td class="en">Evolves into the "next nurse" view (profile display) + review &amp; approval UI. <code>DriftFlag</code> is repurposed for trend flags.</td></tr>
+      <tr><td><code>/api/realtime/session</code></td>
+          <td class="ja">instructions の根拠を「JSON メモリ + 履歴」から「承認済み Living Care Profile」に差し替え。</td>
+          <td class="en">Grounding for instructions switches from "JSON memory + history" to the "approved Living Care Profile."</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section>
+  <h2 class="ja">5. 移行手順(フェーズ計画)</h2>
+  <h2 class="en">5. Migration Steps (Phased Plan)</h2>
+  <p class="ja">各フェーズは独立してマージ可能で、フェーズ完了ごとにデモ可能な状態を保ちます。</p>
+  <p class="en">Each phase is independently mergeable, and the app stays demo-able at the end of every phase.</p>
+
+  <div class="card phase" data-p="0">
+    <div class="phase-head"><span class="phase-num">PHASE 0</span>
+      <h3 class="ja">ポジショニングの文書化</h3><h3 class="en">Document the Repositioning</h3></div>
+    <ul class="ja">
+      <li><code>README.md</code> / <code>ARCHITECTURE.md</code> を新しい課題定義・ワンラインピッチ・ターゲットアーキテクチャで書き換える。</li>
+      <li>プロダクト名の扱いを決める(リポジトリは CareOS のまま、プロダクト名 MemoryPath を README に明記)。</li>
+    </ul>
+    <ul class="en">
+      <li>Rewrite <code>README.md</code> / <code>ARCHITECTURE.md</code> with the new problem statement, one-line pitch, and target architecture.</li>
+      <li>Settle naming (repo stays CareOS; the product name MemoryPath is stated in the README).</li>
+    </ul>
+    <p class="done-when ja"><strong>完了条件:</strong> ドキュメントだけ読んだ人が新ポジショニングを正しく説明できる。</p>
+    <p class="done-when en"><strong>Done when:</strong> someone reading only the docs can explain the new positioning correctly.</p>
+  </div>
+
+  <div class="card phase" data-p="1">
+    <div class="phase-head"><span class="phase-num">PHASE 1</span>
+      <h3 class="ja">データモデルとストア</h3><h3 class="en">Data Model &amp; Stores</h3></div>
+    <ul class="ja">
+      <li><code>schema.ts</code> に <code>CareRecord</code> / <code>Citation</code> / <code>LivingCareProfile</code> / <code>ProfileUpdateProposal</code> の Zod スキーマを追加。</li>
+      <li><code>data/records.json</code>(追記専用)と <code>data/profiles/</code>(バージョン別 JSON)を新設し、ロード/保存関数を <code>data.ts</code> に実装。</li>
+      <li>既存の <code>history.json</code> のノートを <code>type: "soap_note"</code> の CareRecord に、<code>resident.json</code> の memory を初期プロファイル(version 1、承認者 = seed)に移行するスクリプトを書く。</li>
+      <li>合成データを拡充: 家族の記憶・服薬記録・インシデントレポートのサンプルレコードを追加(デモの説得力の核)。</li>
+    </ul>
+    <ul class="en">
+      <li>Add Zod schemas for <code>CareRecord</code> / <code>Citation</code> / <code>LivingCareProfile</code> / <code>ProfileUpdateProposal</code> to <code>schema.ts</code>.</li>
+      <li>Create <code>data/records.json</code> (append-only) and <code>data/profiles/</code> (versioned JSON) with load/save functions in <code>data.ts</code>.</li>
+      <li>Write a migration script: existing <code>history.json</code> notes become <code>type: "soap_note"</code> CareRecords; <code>resident.json</code> memory becomes the seed profile (version 1, approver = seed).</li>
+      <li>Expand synthetic data: sample family memories, medication records, and incident reports (the core of demo credibility).</li>
+    </ul>
+    <p class="done-when ja"><strong>完了条件:</strong> 移行スクリプト実行後、既存アプリが新ストア経由で従来どおり動く。</p>
+    <p class="done-when en"><strong>Done when:</strong> after running the migration script, the existing app works as before via the new stores.</p>
+  </div>
+
+  <div class="card phase" data-p="2">
+    <div class="phase-head"><span class="phase-num">PHASE 2</span>
+      <h3 class="ja">マルチソース取り込み</h3><h3 class="en">Multi-Source Ingestion</h3></div>
+    <ul class="ja">
+      <li><code>POST /api/records</code> を新設: 5 種類のレコードタイプを受け付け、正規化してレコードストアに追記。</li>
+      <li>追記時に GBrain へ自動インポートする同期処理を <code>gbrain.ts</code> に追加(GBrain 不在時はスキップしてフォールバック)。</li>
+      <li>UI にレコード入力フォームを追加(タイプ選択 + テキスト)。既存の <code>NoteInput</code> を汎用化。</li>
+      <li>Realtime 音声の書き起こしも <code>nurse_observation</code> レコードとして取り込めるようにする。</li>
+    </ul>
+    <ul class="en">
+      <li>New <code>POST /api/records</code>: accepts the 5 record types, normalizes, and appends to the record store.</li>
+      <li>Add sync-to-GBrain on append in <code>gbrain.ts</code> (skip with fallback when GBrain is absent).</li>
+      <li>Add a record input form to the UI (type selector + text). Generalize the existing <code>NoteInput</code>.</li>
+      <li>Realtime voice transcripts can also be ingested as <code>nurse_observation</code> records.</li>
+    </ul>
+    <p class="done-when ja"><strong>完了条件:</strong> 5 タイプすべてのレコードを投稿でき、GBrain 検索でヒットする。</p>
+    <p class="done-when en"><strong>Done when:</strong> all 5 record types can be posted and are findable via GBrain search.</p>
+  </div>
+
+  <div class="card phase" data-p="3">
+    <div class="phase-head"><span class="phase-num">PHASE 3</span>
+      <h3 class="ja">推論レイヤー(GBrain × Agents SDK)</h3><h3 class="en">Reasoning Layer (GBrain × Agents SDK)</h3></div>
+    <ul class="ja">
+      <li><code>src/lib/agents/</code> に Agents SDK ベースのプロファイル更新パイプラインを実装。入力 = 新規レコード + 現行プロファイル + GBrain コンテキスト、出力 = <code>ProfileUpdateProposal</code>。</li>
+      <li>役割別のエージェント/ステップ: 長期パターン抽出、ベースライン比較による変化検出(既存ドリフト検出を移植)、鎮静要因・トリガー学習、ケア推奨生成、トレンドフラグ生成。</li>
+      <li>GBrain の <code>search</code> / <code>think</code> をエージェントのツールとして公開。</li>
+      <li>全提案を <code>verify.ts</code>(逐語引用検証)と <code>lint.ts</code>(危険表現)に通し、裏付けのない変更は提案から除外。</li>
+      <li><code>POST /api/proposals/generate</code>(または records 追記時の自動トリガー)を実装。</li>
+    </ul>
+    <ul class="en">
+      <li>Implement the Agents SDK profile-update pipeline in <code>src/lib/agents/</code>. Input = new records + current profile + GBrain context; output = <code>ProfileUpdateProposal</code>.</li>
+      <li>Role-specific agents/steps: long-term pattern extraction, change detection vs. baseline (port existing drift detection), calming/trigger learning, care recommendation generation, trend flag generation.</li>
+      <li>Expose GBrain <code>search</code> / <code>think</code> as agent tools.</li>
+      <li>Run every proposal through <code>verify.ts</code> (verbatim citations) and <code>lint.ts</code> (unsafe language); drop unsupported changes.</li>
+      <li>Implement <code>POST /api/proposals/generate</code> (or auto-trigger on record append).</li>
+    </ul>
+    <p class="done-when ja"><strong>完了条件:</strong> 新規レコード投稿 → 引用付きの更新提案が生成され、全引用が検証を通る。</p>
+    <p class="done-when en"><strong>Done when:</strong> posting a new record produces a cited update proposal whose citations all pass verification.</p>
+  </div>
+
+  <div class="card phase" data-p="4">
+    <div class="phase-head"><span class="phase-num">PHASE 4</span>
+      <h3 class="ja">レビュー &amp; 承認 UI</h3><h3 class="en">Review &amp; Approval UI</h3></div>
+    <ul class="ja">
+      <li>提案一覧 + フィールドごとの before / after diff 表示。各変更に引用元レコードへのリンク。</li>
+      <li>承認 / 却下 / 修正して承認 の 3 操作。承認で <code>version + 1</code> の新プロファイルを保存。</li>
+      <li><code>POST /api/proposals/:id/approve</code> / <code>reject</code> を実装。承認者と時刻を記録。</li>
+      <li>「AI が準備し、看護師が承認する」という体験をこの画面で完成させる — ここがプロダクトの顔。</li>
+    </ul>
+    <ul class="en">
+      <li>Proposal list + per-field before/after diff view. Each change links to its source records.</li>
+      <li>Three actions: approve / reject / edit-and-approve. Approval saves the profile as <code>version + 1</code>.</li>
+      <li>Implement <code>POST /api/proposals/:id/approve</code> / <code>reject</code>, recording approver and timestamp.</li>
+      <li>This screen completes the "AI prepares, nurse approves" experience — it is the face of the product.</li>
+    </ul>
+    <p class="done-when ja"><strong>完了条件:</strong> 提案を承認するとプロファイルの新バージョンができ、却下しても何も変わらない。</p>
+    <p class="done-when en"><strong>Done when:</strong> approving a proposal creates a new profile version; rejecting changes nothing.</p>
+  </div>
+
+  <div class="card phase" data-p="5">
+    <div class="phase-head"><span class="phase-num">PHASE 5</span>
+      <h3 class="ja">提供面 — 「次の看護師」体験</h3><h3 class="en">Delivery — the "Next Nurse" Experience</h3></div>
+    <ul class="ja">
+      <li>「次の看護師」ビュー: 開いた瞬間に人物像・最近の変化・鎮静要因/トリガー・推奨・トレンドフラグが 1 画面に。バージョン間の変化をハイライト。</li>
+      <li>引き継ぎブリーフ生成: 承認済みプロファイル + 直近レコードから生成(既存 compile の handoff brief を移植)。</li>
+      <li>Realtime 音声エージェントの instructions を承認済みプロファイルに差し替え。</li>
+      <li>デモシナリオ整備: 「新レコード投稿 → 提案生成 → 承認 → 次の看護師ビューが変わる」を 3 分で見せられる流れを作る。</li>
+    </ul>
+    <ul class="en">
+      <li>"Next nurse" view: person summary, recent changes, calming/triggers, recommendations, and trend flags on one screen at a glance. Highlight changes between versions.</li>
+      <li>Handoff brief generation from the approved profile + recent records (port the existing compile handoff brief).</li>
+      <li>Switch the Realtime voice agent's instructions to the approved profile.</li>
+      <li>Build the demo scenario: "post record → proposal → approve → the next-nurse view changes," showable in 3 minutes.</li>
+    </ul>
+    <p class="done-when ja"><strong>完了条件:</strong> ワンラインピッチの体験(数秒でパーソナライズされたケアの把握)がデモで再現できる。</p>
+    <p class="done-when en"><strong>Done when:</strong> the one-line pitch experience (personalized care grasped in seconds) is reproducible in a demo.</p>
+  </div>
+
+  <div class="card phase" data-p="6">
+    <div class="phase-head"><span class="phase-num">PHASE 6</span>
+      <h3 class="ja">堅牢化とクリーンアップ</h3><h3 class="en">Hardening &amp; Cleanup</h3></div>
+    <ul class="ja">
+      <li>テスト拡充: スキーマ検証、引用検証、承認フロー(承認なしにプロファイルが変わらないことの保証)、GBrain フォールバック。</li>
+      <li>旧 compile パスの整理: 新パイプラインに統合するか、互換 API として残すかを決めて実行。</li>
+      <li>安全契約ドキュメントを継続学習向けに更新(<code>criteria.md</code> / テストと同期)。</li>
+      <li>将来の拡張ポイントを明記: DB 化、GBrain remote / MCP、認証、EHR 連携、複数入居者対応。</li>
+    </ul>
+    <ul class="en">
+      <li>Expand tests: schema validation, citation verification, approval flow (guarantee the profile never changes without approval), GBrain fallback.</li>
+      <li>Clean up the old compile path: decide whether to fold it into the new pipeline or keep it as a compat API, then do it.</li>
+      <li>Update the safety contract docs for continuous learning (sync with <code>criteria.md</code> / tests).</li>
+      <li>Document future extension points: database, GBrain remote / MCP, auth, EHR integration, multi-resident support.</li>
+    </ul>
+    <p class="done-when ja"><strong>完了条件:</strong> <code>npm run test</code> / <code>lint</code> / <code>typecheck</code> が全緑で、安全契約がテストで担保されている。</p>
+    <p class="done-when en"><strong>Done when:</strong> <code>npm run test</code> / <code>lint</code> / <code>typecheck</code> are all green and the safety contract is enforced by tests.</p>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section>
+  <h2 class="ja">6. 依存関係と推奨順序</h2>
+  <h2 class="en">6. Dependencies &amp; Recommended Order</h2>
+  <div class="ja">
+    <p>Phase 1 → 2 → 3 → 4 → 5 は直列依存(それぞれ前段のデータ/API を使う)。Phase 0 はいつでも並行可能、Phase 6 は 5 の後。最短でデモ価値を出すなら:</p>
+    <ol>
+      <li><strong>Phase 1 + 2 をまとめて</strong>(データ基盤。既存デモを壊さないことが唯一のリスク)</li>
+      <li><strong>Phase 3</strong>(ここが技術的な核。GBrain × Agents SDK の統合に最も時間を割く)</li>
+      <li><strong>Phase 4 + 5 をまとめて</strong>(体験の完成。デモの見せ場)</li>
+      <li><strong>Phase 0 と 6</strong> は隙間時間で進める</li>
+    </ol>
+  </div>
+  <div class="en">
+    <p>Phases 1 → 2 → 3 → 4 → 5 are serially dependent (each consumes the previous phase's data/APIs). Phase 0 can run in parallel anytime; Phase 6 follows 5. For fastest demo value:</p>
+    <ol>
+      <li><strong>Phase 1 + 2 together</strong> (data foundation; the only risk is not breaking the existing demo)</li>
+      <li><strong>Phase 3</strong> (the technical core — spend the most time on the GBrain × Agents SDK integration)</li>
+      <li><strong>Phase 4 + 5 together</strong> (completing the experience — the demo highlight)</li>
+      <li><strong>Phases 0 and 6</strong> fill the gaps</li>
+    </ol>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span class="ja">MemoryPath 設計・移行計画 — 2026-07-05 / リポジトリ: CareOS</span>
+  <span class="en">MemoryPath architecture &amp; migration plan — 2026-07-05 / repo: CareOS</span>
+</footer>
+
+<script>
+function setLang(lang) {
+  document.body.dataset.lang = lang;
+  document.documentElement.lang = lang;
+  document.getElementById('btn-ja').classList.toggle('active', lang === 'ja');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  try { localStorage.setItem('memorypath-plan-lang', lang); } catch (e) {}
+}
+try {
+  var saved = localStorage.getItem('memorypath-plan-lang');
+  if (saved === 'en' || saved === 'ja') setLang(saved);
+} catch (e) {}
+</script>
+</body>
+</html>
