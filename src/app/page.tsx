@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ModeToggle } from "@/src/components/ModeToggle";
 import { NoteInput } from "@/src/components/NoteInput";
+import { RealtimeVoiceAgent } from "@/src/components/RealtimeVoiceAgent";
 import { ShiftView } from "@/src/components/ShiftView";
 import type { CompilePayload, Resident } from "@/src/lib/careos-types";
 import { defaultResident, fixtureOff, fixtureOn } from "@/src/lib/careos-fixtures";
@@ -91,7 +92,10 @@ export default function HomePage() {
       </section>
 
       <section className="workspace">
-        <NoteInput loading={loading} onSubmit={submit} />
+        <div className="left-rail">
+          <RealtimeVoiceAgent />
+          <NoteInput loading={loading} onSubmit={submit} />
+        </div>
         <div className="right-rail">
           <ModeToggle selectedMode={mode} onChange={setMode} />
           <ShiftView loading={loading} payload={activePayload} mode={mode} residentLabel={residentLabel} />
