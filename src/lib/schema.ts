@@ -20,7 +20,7 @@ export const CitationSchema = z.object({
 export const ObservationSchema = z.object({
   category: CategorySchema,
   text: z.string().min(1),
-  note_id: z.string().min(1).optional(),
+  note_id: z.string().min(1),
 });
 
 export const DriftFlagSchema = z.object({
