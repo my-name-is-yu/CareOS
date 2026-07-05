@@ -61,6 +61,20 @@ export function RealtimeVoiceAgent({ residentId }: Props) {
     return () => sessionRef.current?.close();
   }, []);
 
+  // If the selected resident changes while a voice session is connected (or
+  // connecting), tear it down so voice support never stays grounded on the
+  // previously selected resident's context.
+  useEffect(() => {
+    if (sessionRef.current) {
+      sessionRef.current.close();
+      sessionRef.current = null;
+      setMuted(false);
+      setError("");
+      setMessages([]);
+      setVoiceState("idle");
+    }
+  }, [residentId]);
+
   async function connect() {
     setError("");
     setVoiceState("connecting");
@@ -142,13 +156,7 @@ export function RealtimeVoiceAgent({ residentId }: Props) {
   }
 
   const orbTheme: ShaderOrbTheme =
-    voiceState === "connected"
-      ? "orange"
-      : voiceState === "connecting"
-        ? "purple"
-        : voiceState === "error"
-          ? "crimson"
-          : "blue";
+    voiceState === "error" ? "crimson" : "orange";
 
   return (
     <section className="voice-agent panel">
