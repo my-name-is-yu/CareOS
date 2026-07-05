@@ -6,3 +6,5 @@ dist
 .env.local
 *.log
 tsconfig.tsbuildinfo
+data/cache/on.json
+data/cache/off.json
