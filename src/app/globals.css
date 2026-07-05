@@ -173,6 +173,7 @@ button:disabled { opacity: 0.55; }
   font-weight: 650;
 }
 .warning-badge { background: rgba(199, 130, 31, 0.16); color: var(--warn); }
+.unverified-hint { margin-bottom: 12px; }
 
 .shift-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .wide { grid-column: 1 / -1; }
