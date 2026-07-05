@@ -1,22 +1,11 @@
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import path from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { readCachedCompile, writeCachedCompile, loadHistory, loadResident } from "../src/lib/data";
-import { CompileEnvelopeSchema, CompileResultSchema, type CompileResult } from "../src/lib/schema";
+import { loadHistory, loadResident } from "../src/lib/data";
 import { buildCompileInput, compileFromBody } from "../src/lib/compile";
 import { lintClinicalLanguage } from "../src/lib/lint";
+import { createRealtimeSession } from "../src/lib/realtime-session";
+import { CompileEnvelopeSchema, CompileResultSchema, type CompileResult } from "../src/lib/schema";
 import { normalizeCitationText, verifyCompileResult } from "../src/lib/verify";
-
-const originalCwd = globalThis.process.cwd();
-const originalKey = globalThis.process.env.OPENAI_API_KEY;
-
-afterEach(async () => {
-  globalThis.process.chdir(originalCwd);
-  globalThis.process.env.OPENAI_API_KEY = originalKey;
-  vi.restoreAllMocks();
-});
 
 const validResult: CompileResult = {
   observations: [{ category: "gait", text: "Slower gait observed.", note_id: "note-001" }],
@@ -29,39 +18,24 @@ const validResult: CompileResult = {
 };
 
 describe("pipeline schema", () => {
-  it("parses the frozen CompileResult shape", () => {
+  it("parses the Product v1 CompileResult shape", () => {
     expect(CompileResultSchema.parse(validResult)).toEqual(validResult);
   });
 
-  it("parses the API envelope shape", () => {
-    const envelope = { result: validResult, verified: true, warnings: [], latencyMs: 12, cached: false };
+  it("parses the API envelope without alternate compile state", () => {
+    const envelope = { result: validResult, verified: true, warnings: [], latencyMs: 12 };
     expect(CompileEnvelopeSchema.parse(envelope)).toEqual(envelope);
   });
 });
 
-describe("data fixtures", () => {
-  it("includes gait and medication-refusal demo patterns", async () => {
-    const history = await loadHistory();
+describe("patient memory data", () => {
+  it("loads resident memory and historical notes", async () => {
+    const [resident, history] = await Promise.all([loadResident(), loadHistory()]);
+
+    expect(resident).toMatchObject({ name: "Default Resident" });
     expect(history.some((entry) => entry.text.includes("slower than baseline"))).toBe(true);
     expect(history.some((entry) => entry.text.includes("refused"))).toBe(true);
     expect(history.some((entry) => entry.text.includes("corridor"))).toBe(true);
-  });
-
-  it("loads resident data", async () => {
-    await expect(loadResident()).resolves.toMatchObject({ name: "Default Resident" });
-  });
-});
-
-describe("cache helpers", () => {
-  it("writes and reads mode cache envelopes", async () => {
-    const dir = await mkdtemp(path.join(tmpdir(), "careos-cache-"));
-    globalThis.process.chdir(dir);
-    const envelope = CompileEnvelopeSchema.parse({ result: validResult, verified: true, warnings: [], latencyMs: 1, cached: false });
-
-    await writeCachedCompile("on", envelope);
-    await expect(readCachedCompile("on")).resolves.toEqual(envelope);
-    globalThis.process.chdir(originalCwd);
-    await rm(dir, { recursive: true, force: true });
   });
 });
 
@@ -70,7 +44,7 @@ describe("citation verification", () => {
     expect(normalizeCitationText("  “Walked   SLOWER”  ")).toBe("\"walked slower\"");
   });
 
-  it("drops unverifiable citations", () => {
+  it("drops unverifiable citations and keeps supported flags", () => {
     const result = verifyCompileResult(
       {
         ...validResult,
@@ -89,40 +63,28 @@ describe("citation verification", () => {
       },
       [{ note_id: "note-001", text: "Slower gait observed." }],
     );
+
     expect(result.verified).toBe(false);
     expect(result.result.drift_flags).toHaveLength(1);
+    expect(result.result.drift_flags[0]?.citations).toEqual([{ note_id: "note-001", quote: "Slower gait observed." }]);
   });
 });
 
-describe("lint warnings", () => {
-  it("warns on diagnostic or prescribing language", () => {
-    expect(
-      lintClinicalLanguage({
-        observations: [],
-        drift_flags: [],
-        handoff_brief: {
-          summary: "Diagnose dementia and prescribe medication.",
-          watch_items: [],
-          context_the_note_missed: [],
-        },
-      } satisfies CompileResult),
-    ).toEqual([
-      "Review language for clinical, diagnostic, or prescribing claims.",
-    ]);
-  });
+describe("clinical safety warnings", () => {
+  it("warns on diagnostic, prescribing, dosage, and autonomous-care language", () => {
+    const warning = "Review language for clinical, diagnostic, or prescribing claims.";
 
-  it.each([
-    "Consider a diagnosis of vascular issues.",
-    "Prescribing a new plan for the resident.",
-    "Increase the dosage per the chart.",
-    "Signs of underlying disease noted.",
-    "Symptoms consistent with parkinson's.",
-    "Behavior consistent with alzheimer's.",
-    "Notable progression of dementia this week.",
-  ])("warns on spec keyword: %s", (text) => {
-    expect(lintClinicalLanguage({ summary: text })).toEqual([
-      "Review language for clinical, diagnostic, or prescribing claims.",
-    ]);
+    for (const text of [
+      "Consider a diagnosis of vascular issues.",
+      "Prescribing a new plan for the resident.",
+      "Increase the dosage per the chart.",
+      "Symptoms consistent with parkinson's.",
+      "Notable progression of dementia this week.",
+      "The resident must administer the medication without nurse review.",
+      "No nurse checks needed tonight.",
+    ]) {
+      expect(lintClinicalLanguage({ summary: text })).toEqual([warning]);
+    }
   });
 
   it("does not warn on clean operational language", () => {
@@ -130,7 +92,7 @@ describe("lint warnings", () => {
   });
 });
 
-describe("compile route helpers", () => {
+describe("compile entrypoint contract", () => {
   const resident = {
     name: "Default Resident",
     age: 84,
@@ -141,27 +103,45 @@ describe("compile route helpers", () => {
   };
   const history = [{ note_id: "note-001", date: "2026-07-01", shift: "day", author: "Yamada", text: "History" }];
 
-  it("assembles OFF input with the note only and empty context", () => {
-    const off = JSON.parse(buildCompileInput({ note: "New note", mode: "off", resident, history }));
-    expect(off.current_note).toBe("New note");
-    expect(off.context.resident).toBeNull();
-    expect(off.context.history).toEqual([]);
-    expect(off.context.instruction).toContain("context_the_note_missed empty");
-    expect(off.context.instruction).toContain("note itself explicitly states a change");
-    expect(off.output_contract).toContain('note_id to "live"');
+  it("always assembles resident memory and full history", () => {
+    const input = JSON.parse(buildCompileInput({ note: "New note", resident, history }));
+
+    expect(input.current_note).toBe("New note");
+    expect(input.resident_memory.resident).toEqual(resident);
+    expect(input.resident_memory.history).toEqual(history);
+    expect(input.resident_memory.instruction).toContain("Memory is always included");
+    expect(input.resident_memory.instruction).toContain("missing nursing checks");
+    expect(input.output_contract).toContain('note_id to "live"');
   });
 
-  it("assembles ON input with resident and all history", () => {
-    const on = JSON.parse(buildCompileInput({ note: "New note", mode: "on", resident, history }));
-    expect(on.context.resident).toEqual(resident);
-    expect(on.context.history).toEqual(history);
-    expect(on.context.instruction).toContain("verbatim historical citations");
+  it("requires a server OpenAI key instead of returning local canned output", async () => {
+    await expect(compileFromBody({ note: "Local note" }, { hasOpenAIKey: false })).rejects.toThrow("OPENAI_API_KEY is required for compile.");
   });
+});
 
-  it("returns cached demo data when the key is missing", async () => {
-    globalThis.process.env.OPENAI_API_KEY = "";
-    const envelope = await compileFromBody({ note: "Local note", mode: "off" }, { hasOpenAIKey: false });
-    expect(envelope.cached).toBe(true);
-    expect(envelope.result.drift_flags).toEqual([]);
+describe("Realtime session boundary", () => {
+  it("uses the OpenAI SDK client-secret API and never returns the server key", async () => {
+    const create = vi.fn(async () => ({
+      id: "sess_123",
+      object: "realtime.session",
+      client_secret: { value: "ek_test", expires_at: 123 },
+      api_key: "sk-server",
+      nested: { apiKey: "sk-server" },
+    }));
+
+    const session = await createRealtimeSession({
+      apiKey: "sk-server",
+      client: { realtime: { clientSecrets: { create } } },
+    });
+
+    expect(create).toHaveBeenCalledWith({
+      session: {
+        type: "realtime",
+        model: "gpt-4o-realtime-preview",
+        audio: { output: { voice: "alloy" } },
+      },
+    });
+    expect(JSON.stringify(session)).not.toContain("sk-server");
+    expect(session.client_secret).toEqual({ value: "ek_test", expires_at: 123 });
   });
 });

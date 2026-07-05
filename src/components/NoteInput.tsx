@@ -42,7 +42,7 @@ export function NoteInput({ onSubmit, loading }: Props) {
           }
         }
       } catch {
-        // Demo mode falls back to typed note display when transcription is unavailable.
+        // Voice capture is optional; typed notes remain the production entrypoint.
       }
       stream.getTracks().forEach((track) => track.stop());
     };

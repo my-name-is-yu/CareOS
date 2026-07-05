@@ -1,17 +1,24 @@
 # CareOS
 
-## Local demo
+CareOS Product v1 is a nurse-facing dementia-care workspace for turning shift notes into memory-backed handoff support. The product helps staff compare a current observation against patient memory and history, verify cited evidence, and surface missing nursing checks for human review.
+
+## Setup
 
 1. Install dependencies with `npm install`.
 2. Create `.env.local` with `OPENAI_API_KEY=...`.
 3. Start the app with `npm run dev`.
-4. Enter a typed note in the main screen and send it to compile.
-5. If transcription is unavailable, keep using the typed-note path.
-6. Press `F` to swap the active pane to the cached fallback without changing modes.
-7. If live compile is unavailable, the UI falls back to cached fixture data.
+4. Open the workspace and submit a typed resident note.
 
-## API routes
+## Product v1 Routes
 
-- `POST /api/compile` with `{ "note": string, "mode": "off" | "on" }`
-- `GET /api/resident`
-- `POST /api/transcribe` for optional mic transcription
+- `POST /api/compile` with `{ "note": string }`: compiles the note with resident profile and historical memory always included.
+- `GET /api/resident`: returns local JSON-backed resident profile and history for the workspace.
+- `POST /api/transcribe`: transcribes optional microphone input into note text.
+- `POST /api/realtime/session`: creates an OpenAI Realtime client-secret session for browser voice interaction without exposing the server API key.
+
+## Safety Contract
+
+- CareOS does not diagnose, prescribe, suggest dosage changes, or make autonomous care decisions.
+- Drift flags must cite patient-memory or history evidence with verbatim note quotes.
+- Unsupported citations are removed before the response is returned.
+- The workspace warns on unsafe clinical language and asks nurses to verify missing checks instead of treating model output as an order.
