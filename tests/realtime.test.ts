@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { buildGBrainQuery } from "../src/lib/gbrain";
 import { lintClinicalLanguage } from "../src/lib/lint";
-import { buildRealtimeInstructions, realtimeModel, realtimeWebRtcUrl } from "../src/lib/realtime";
+import { buildRealtimeInstructions, realtimeModel } from "../src/lib/realtime";
 import type { CareRecord, LivingCareProfile } from "../src/lib/schema";
 import { normalizeCitationText } from "../src/lib/verify";
 
@@ -102,9 +102,8 @@ const recentRecords: CareRecord[] = [
 ];
 
 describe("realtime instructions builder", () => {
-  it("uses the current realtime model and WebRTC calls endpoint", () => {
+  it("uses the current realtime model", () => {
     expect(realtimeModel).toBe("gpt-realtime-2");
-    expect(realtimeWebRtcUrl).toBe("https://api.openai.com/v1/realtime/calls");
   });
 
   it("grounds instructions on the approved Living Care Profile and recent records", () => {

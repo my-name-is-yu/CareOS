@@ -2,7 +2,6 @@ import type { Resident } from "./data";
 import type { CareRecord, LivingCareProfile } from "./schema";
 
 export const realtimeModel = "gpt-realtime-2";
-export const realtimeWebRtcUrl = "https://api.openai.com/v1/realtime/calls";
 
 export type RealtimeClientSecretResponse = {
   clientSecret: {

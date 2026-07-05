@@ -1,1 +1,110 @@
-[]
+[
+  {
+    "id": "prop-001",
+    "residentId": "aiko-mori",
+    "baseVersion": 1,
+    "triggeredBy": [
+      "rec-obs-003"
+    ],
+    "createdAt": "2026-07-05T07:29:08.673Z",
+    "changes": [
+      {
+        "field": "recentChanges",
+        "before": [
+          {
+            "description": "Recent notes show slower gait after lunch and near hallway turns.",
+            "direction": "changed",
+            "citations": [
+              {
+                "recordId": "rec-soap-001",
+                "quote": "slower than baseline"
+              }
+            ]
+          },
+          {
+            "description": "Two recent evening notes include the same medication refusal phrase.",
+            "direction": "changed",
+            "citations": [
+              {
+                "recordId": "rec-soap-002",
+                "quote": "I do not want it tonight"
+              }
+            ]
+          },
+          {
+            "description": "Noise from the corridor was linked to a request for a quieter room.",
+            "direction": "changed",
+            "citations": [
+              {
+                "recordId": "rec-soap-003",
+                "quote": "Noise from the corridor"
+              }
+            ]
+          }
+        ],
+        "after": [
+          {
+            "description": "Frequent evening medication refusals linked to noisier environments.",
+            "direction": "changed",
+            "citations": [
+              {
+                "recordId": "rec-obs-003",
+                "quote": "Aiko refused evening medication again around 19:40 when the corridor was noisy after the fire drill."
+              },
+              {
+                "recordId": "rec-soap-005",
+                "quote": "Resident again refused medication and repeated, 'I do not want it tonight.'"
+              }
+            ]
+          }
+        ],
+        "citations": [
+          {
+            "recordId": "rec-obs-003",
+            "quote": "Aiko refused evening medication again around 19:40 when the corridor was noisy after the fire drill."
+          },
+          {
+            "recordId": "rec-soap-005",
+            "quote": "Resident again refused medication and repeated, 'I do not want it tonight.'"
+          }
+        ],
+        "rationale": "Recent records indicate recurrent medication refusal episodes specifically tied to noisy evening environments, emphasizing the need to document this as a change in pattern."
+      },
+      {
+        "field": "careRecommendations",
+        "before": [
+          {
+            "situation": "Medication round with unfamiliar staff or corridor noise present",
+            "approach": "Give a short break before re-offering medication with a familiar staff member when possible.",
+            "citations": []
+          },
+          {
+            "situation": "Evening agitation near the corridor",
+            "approach": "Lower room noise, sit at eye level, and restart the explanation slowly.",
+            "citations": []
+          }
+        ],
+        "after": [
+          {
+            "situation": "Evening medication round during noisy disturbances like fire drills",
+            "approach": "Move resident to a quiet lounge, play favorite music, and offer medication with apple jelly.",
+            "citations": [
+              {
+                "recordId": "rec-obs-003",
+                "quote": "She calmed down after staff moved her to the quiet lounge and played her favorite enka music, then took the medication with apple jelly."
+              }
+            ]
+          }
+        ],
+        "citations": [
+          {
+            "recordId": "rec-obs-003",
+            "quote": "She calmed down after staff moved her to the quiet lounge and played her favorite enka music, then took the medication with apple jelly."
+          }
+        ],
+        "rationale": "New observations suggest a specific approach of moving to a quieter environment with familiar calming elements effectively helps in medication administration during noisy periods."
+      }
+    ],
+    "status": "approved"
+  }
+]

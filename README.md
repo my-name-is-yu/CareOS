@@ -40,7 +40,7 @@ By default MemoryPath runs entirely on the local JSON stores under `data/`. Set 
 ```env
 CAREOS_MEMORY_BACKEND=gbrain
 GBRAIN_OPERATION=search
-GBRAIN_TIMEOUT_MS=4000
+GBRAIN_TIMEOUT_MS=30000
 OPENAI_API_KEY=...
 ```
 

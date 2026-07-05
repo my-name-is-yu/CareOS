@@ -22,7 +22,7 @@ export function buildGBrainQuery(resident: Resident, currentNote?: string): stri
 export async function loadGBrainKnowledgeContext(resident: Resident, currentNote?: string): Promise<string> {
   const command = globalThis.process.env.GBRAIN_COMMAND || "gbrain";
   const operation = globalThis.process.env.GBRAIN_OPERATION || "search";
-  const timeout = Number(globalThis.process.env.GBRAIN_TIMEOUT_MS || "4000");
+  const timeout = Number(globalThis.process.env.GBRAIN_TIMEOUT_MS || "30000");
   const query = buildGBrainQuery(resident, currentNote);
   const { stdout, stderr } = await execFileAsync(command, [operation, query], {
     cwd: globalThis.process.cwd(),
@@ -54,7 +54,7 @@ export async function syncRecordToGBrain(record: CareRecord): Promise<void> {
     await writeFile(filePath, `${header}\n\n${record.body}\n`, "utf8");
 
     const command = globalThis.process.env.GBRAIN_COMMAND || "gbrain";
-    const timeout = Number(globalThis.process.env.GBRAIN_TIMEOUT_MS || "4000");
+    const timeout = Number(globalThis.process.env.GBRAIN_TIMEOUT_MS || "30000");
     await execFileAsync(command, ["import", "brain"], {
       cwd: globalThis.process.cwd(),
       timeout: Number.isFinite(timeout) && timeout > 0 ? timeout : 4000,

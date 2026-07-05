@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { RealtimeAgent, RealtimeSession, type RealtimeItem } from "@openai/agents-realtime";
-import { realtimeModel, realtimeWebRtcUrl, type RealtimeClientSecretResponse } from "@/src/lib/realtime";
+import { realtimeModel, type RealtimeClientSecretResponse } from "@/src/lib/realtime";
 import { ShaderOrb, type ShaderOrbTheme } from "@/src/components/ShaderOrb";
 
 type VoiceState = "idle" | "connecting" | "connected" | "error";
@@ -23,8 +23,8 @@ function messageText(item: RealtimeItem): TranscriptMessage | null {
     .map((part) => {
       if (part.type === "input_text") return part.text;
       if (part.type === "input_audio") return part.transcript ?? "";
-      if (part.type === "text") return part.text;
-      if (part.type === "audio") return part.transcript ?? "";
+      if (part.type === "output_text") return part.text;
+      if (part.type === "output_audio") return part.transcript ?? "";
       return "";
     })
     .filter(Boolean)
@@ -110,7 +110,7 @@ export function RealtimeVoiceAgent({ residentId }: Props) {
         setVoiceState("error");
       });
 
-      await session.connect({ apiKey: clientSecret.value, url: realtimeWebRtcUrl });
+      await session.connect({ apiKey: clientSecret.value });
       sessionRef.current = session;
       setMuted(Boolean(session.muted));
       setVoiceState("connected");
