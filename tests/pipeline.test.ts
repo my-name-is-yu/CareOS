@@ -99,6 +99,24 @@ describe("lint warnings", () => {
       "Review language for clinical, diagnostic, or prescribing claims.",
     ]);
   });
+
+  it.each([
+    "Consider a diagnosis of vascular issues.",
+    "Prescribing a new plan for the resident.",
+    "Increase the dosage per the chart.",
+    "Signs of underlying disease noted.",
+    "Symptoms consistent with parkinson's.",
+    "Behavior consistent with alzheimer's.",
+    "Notable progression of dementia this week.",
+  ])("warns on spec keyword: %s", (text) => {
+    expect(lintClinicalLanguage({ summary: text })).toEqual([
+      "Review language for clinical, diagnostic, or prescribing claims.",
+    ]);
+  });
+
+  it("does not warn on clean operational language", () => {
+    expect(lintClinicalLanguage({ summary: "Resident had a calm afternoon and ate well." })).toEqual([]);
+  });
 });
 
 describe("cache helpers", () => {
@@ -138,6 +156,9 @@ describe("compile route helpers", () => {
     expect(assembled.current_note).toBe("New note");
     expect(assembled.context.history).toEqual([]);
     expect(assembled.context.resident).toBeNull();
+    expect(assembled.context.instruction).toContain("context_the_note_missed empty");
+    expect(assembled.context.instruction).toContain("note itself explicitly states a change");
+    expect(assembled.output_contract).toContain('note_id to "live"');
   });
 
   it("assembles ON input with resident and all history", () => {
