@@ -45,7 +45,15 @@ describe("patient memory data", () => {
   });
 
   it("loads resident data", async () => {
-    await expect(loadResident()).resolves.toMatchObject({ name: "Aiko Mori" });
+    const resident = await loadResident();
+    expect(resident).toEqual({
+      name: "Aiko Mori",
+      age: 84,
+      room: "A-101",
+      timezone: "Asia/Tokyo",
+      language: "ja",
+    });
+    expect(resident).not.toHaveProperty("memory");
   });
 
   it("loads patient memory with operational care fields", async () => {
