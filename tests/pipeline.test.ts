@@ -4,7 +4,7 @@ import { loadHistory, loadMemory, loadResident } from "../src/lib/data";
 import { CompileEnvelopeSchema, CompileResultSchema, type CompileResult } from "../src/lib/schema";
 import { buildCompileInput, compileFromBody, CompileRequestBodySchema } from "../src/lib/compile";
 import { lintClinicalLanguage } from "../src/lib/lint";
-import { buildRealtimeInstructions } from "../src/lib/realtime";
+import { buildRealtimeInstructions, realtimeModel, realtimeWebRtcUrl } from "../src/lib/realtime";
 import { normalizeCitationText, verifyCompileResult } from "../src/lib/verify";
 
 const originalCwd = globalThis.process.cwd();
@@ -183,6 +183,11 @@ describe("compile entrypoint contract", () => {
 });
 
 describe("realtime session route", () => {
+  it("uses the current realtime model and WebRTC calls endpoint", () => {
+    expect(realtimeModel).toBe("gpt-realtime-2");
+    expect(realtimeWebRtcUrl).toBe("https://api.openai.com/v1/realtime/calls");
+  });
+
   it("builds dementia-care instructions with patient memory fields and refusal boundaries", () => {
     const instructions = buildRealtimeInstructions(
       {
@@ -237,6 +242,22 @@ describe("realtime session route", () => {
     const body = await response.json();
 
     expect(create).toHaveBeenCalled();
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        session: expect.objectContaining({
+          type: "realtime",
+          model: "gpt-realtime-2",
+          output_modalities: ["audio"],
+          audio: expect.objectContaining({
+            input: expect.objectContaining({
+              transcription: expect.objectContaining({ model: "gpt-4o-mini-transcribe", language: "ja" }),
+              turn_detection: expect.objectContaining({ type: "server_vad", create_response: true, interrupt_response: true }),
+            }),
+            output: { voice: "marin" },
+          }),
+        }),
+      }),
+    );
     expect(body).toEqual({ clientSecret: { value: "ek_ephemeral_client_secret", expiresAt: 1234567890 } });
     expect(body.clientSecret.value).toMatch(/^ek_/);
     expect(JSON.stringify(body)).not.toContain("sk-server-secret");

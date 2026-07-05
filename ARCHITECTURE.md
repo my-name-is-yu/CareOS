@@ -52,7 +52,7 @@ The model returns observations, drift flags, and a handoff brief. Observations f
 
 ## Realtime Voice Boundary
 
-Browser voice interaction uses `@openai/agents-realtime` in the client and `POST /api/realtime/session` on the server. The route loads resident identity, patient memory, and historical notes, builds dementia-care nursing instructions, then calls `openai.realtime.clientSecrets.create`.
+Browser voice interaction uses `@openai/agents-realtime` in the client and `POST /api/realtime/session` on the server. The route loads resident identity, patient memory, and historical notes, builds dementia-care nursing instructions, then calls `openai.realtime.clientSecrets.create` for `gpt-realtime-2`. The browser connects WebRTC SDP to `https://api.openai.com/v1/realtime/calls` with the returned ephemeral key.
 
 The route returns only:
 

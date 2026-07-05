@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { RealtimeAgent, RealtimeSession, type RealtimeItem } from "@openai/agents-realtime";
-import type { RealtimeClientSecretResponse } from "@/src/lib/realtime";
+import { realtimeModel, realtimeWebRtcUrl, type RealtimeClientSecretResponse } from "@/src/lib/realtime";
 
 type VoiceState = "idle" | "connecting" | "connected" | "error";
 
@@ -27,6 +27,14 @@ function messageText(item: RealtimeItem): TranscriptMessage | null {
 
   if (!text.trim()) return null;
   return { id: item.itemId, role: item.role, text };
+}
+
+function realtimeErrorMessage(error: unknown): string {
+  if (!(error instanceof Error)) return "Microphone permission or connection failed.";
+  if (error.message.includes("Expect line: v=")) {
+    return "Realtime connection failed before audio negotiation. Check the session endpoint, model, and server API key.";
+  }
+  return error.message;
 }
 
 export function RealtimeVoiceAgent() {
@@ -61,7 +69,7 @@ export function RealtimeVoiceAgent() {
       });
       const session = new RealtimeSession(agent, {
         transport: "webrtc",
-        model: "gpt-4o-realtime-preview-2025-06-03",
+        model: realtimeModel,
         config: {
           inputAudioTranscription: { model: "gpt-4o-mini-transcribe" },
           turnDetection: { type: "server_vad", createResponse: true, interruptResponse: true },
@@ -70,16 +78,16 @@ export function RealtimeVoiceAgent() {
 
       session.on("history_updated", (history) => setMessages(history.map(messageText).filter((item): item is TranscriptMessage => item !== null)));
       session.on("error", ({ error: sessionError }) => {
-        setError(sessionError instanceof Error ? sessionError.message : "Realtime session error.");
+        setError(realtimeErrorMessage(sessionError));
         setVoiceState("error");
       });
 
-      await session.connect({ apiKey: clientSecret.value });
+      await session.connect({ apiKey: clientSecret.value, url: realtimeWebRtcUrl });
       sessionRef.current = session;
       setMuted(Boolean(session.muted));
       setVoiceState("connected");
     } catch (connectError) {
-      setError(connectError instanceof Error ? connectError.message : "Microphone permission or connection failed.");
+      setError(realtimeErrorMessage(connectError));
       setVoiceState("error");
     }
   }

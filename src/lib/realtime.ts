@@ -1,6 +1,7 @@
 import type { HistoryNote, PatientMemory, Resident } from "./data";
 
-export const realtimeModel = "gpt-4o-realtime-preview-2025-06-03";
+export const realtimeModel = "gpt-realtime-2";
+export const realtimeWebRtcUrl = "https://api.openai.com/v1/realtime/calls";
 
 export type RealtimeClientSecretResponse = {
   clientSecret: {

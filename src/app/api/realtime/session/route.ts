@@ -32,6 +32,9 @@ export async function POST() {
               interrupt_response: true,
             },
           },
+          output: {
+            voice: "marin",
+          },
         },
       },
     });
