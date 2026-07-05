@@ -216,4 +216,66 @@ describe("approve/reject route logic", () => {
     expect(body.profile.approvedBy).toBe("nurse-yamada");
     expect(body.proposal.status).toBe("edited_and_approved");
   });
+
+  it("approve applies editedChanges that remove an item from a structured list field", async () => {
+    await saveProfileVersion(baseProfile);
+    const structuredProposal: ProfileUpdateProposal = {
+      ...baseProposal,
+      changes: [
+        {
+          field: "careRecommendations",
+          before: [],
+          after: [
+            {
+              situation: "Resident is agitated before meals.",
+              approach: "Offer a calm walk beforehand.",
+              citations: [{ recordId: "rec-obs-004", quote: "Agitated before lunch." }],
+            },
+            {
+              situation: "Resident resists bathing.",
+              approach: "Use warm towels first.",
+              citations: [{ recordId: "rec-obs-005", quote: "Resisted bathing this morning." }],
+            },
+          ],
+          citations: [{ recordId: "rec-obs-004", quote: "Agitated before lunch." }],
+          rationale: "New observations suggest additional care recommendations.",
+        },
+      ],
+    };
+    await saveProposal(structuredProposal);
+
+    const editedChanges: FieldDiff[] = [
+      {
+        field: "careRecommendations",
+        before: [],
+        after: [
+          {
+            situation: "Resident is agitated before meals.",
+            approach: "Offer a calm walk beforehand.",
+            citations: [{ recordId: "rec-obs-004", quote: "Agitated before lunch." }],
+          },
+        ],
+        citations: [{ recordId: "rec-obs-004", quote: "Agitated before lunch." }],
+        rationale: "New observations suggest additional care recommendations.",
+      },
+    ];
+
+    const { POST } = await import("../src/app/api/proposals/[id]/approve/route");
+    const request = new Request("http://localhost/api/proposals/prop-001/approve", {
+      method: "POST",
+      body: JSON.stringify({ approvedBy: "nurse-yamada", editedChanges }),
+    });
+    const response = await POST(request as never, { params: Promise.resolve({ id: "prop-001" }) });
+    const body = (await response.json()) as { profile: LivingCareProfile; proposal: ProfileUpdateProposal };
+
+    expect(response.status).toBe(200);
+    expect(body.profile.careRecommendations.value).toEqual([
+      {
+        situation: "Resident is agitated before meals.",
+        approach: "Offer a calm walk beforehand.",
+        citations: [{ recordId: "rec-obs-004", quote: "Agitated before lunch." }],
+      },
+    ]);
+    expect(body.proposal.status).toBe("edited_and_approved");
+  });
 });

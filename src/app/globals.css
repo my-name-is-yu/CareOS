@@ -354,6 +354,46 @@ blockquote {
 .diff-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
 .diff-grid ul { margin: 0; padding-left: 16px; }
 
+.field-diff-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+
+button.small { padding: 5px 10px; font-size: 0.78rem; border-radius: 6px; }
+
+.field-diff textarea,
+.field-diff input[type="text"] {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-subtle);
+  color: var(--text);
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.field-diff textarea { min-height: 80px; }
+
+.field-diff select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-subtle);
+  color: var(--text);
+  padding: 8px 10px;
+  width: fit-content;
+}
+
+.editable-list { display: grid; gap: 8px; }
+.editable-list-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+
+.editable-struct-row {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--panel-subtle);
+}
+
+.edit-hint { font-size: 0.8rem; }
+
 .resolved-proposals summary { cursor: pointer; list-style: none; font-weight: 650; color: var(--muted); }
 .resolved-proposals { margin-top: 4px; }
 .proposal-card.resolved { padding: 10px 12px; }
