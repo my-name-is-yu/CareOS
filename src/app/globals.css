@@ -171,7 +171,7 @@ h3 {
   padding: 12px;
 }
 
-.observation span, .citation-meta, .transcript label {
+.observation span, .citation-meta {
   display: block;
   font-size: 12px;
   color: var(--muted);
@@ -224,14 +224,6 @@ button.secondary {
 }
 
 button:disabled { opacity: 0.55; }
-
-.transcript {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--panel-subtle);
-  color: var(--muted);
-}
 
 .memory-rail {
   display: grid;
