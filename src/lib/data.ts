@@ -4,7 +4,7 @@ import path from "node:path";
 import { CompileEnvelopeSchema, type CompileEnvelope, ModeSchema, type Mode } from "./schema";
 
 function dataRoot(): string {
-  return path.join(process.cwd(), "data");
+  return path.join(globalThis.process.cwd(), "data");
 }
 
 function cacheRoot(): string {

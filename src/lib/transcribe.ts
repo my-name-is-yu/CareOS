@@ -1,8 +1,11 @@
 import OpenAI from "openai";
 
-export async function transcribeFormData(formData: FormData, apiKey = process.env.OPENAI_API_KEY): Promise<{ text: string }> {
+export async function transcribeFormData(
+  formData: globalThis.FormData,
+  apiKey = globalThis.process?.env.OPENAI_API_KEY,
+): Promise<{ text: string }> {
   const audio = formData.get("audio");
-  if (!(audio instanceof File)) {
+  if (!(audio instanceof globalThis.File)) {
     throw new Error("Missing audio upload.");
   }
   if (!apiKey) {

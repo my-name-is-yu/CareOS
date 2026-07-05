@@ -10,11 +10,14 @@ export default [
       ecmaVersion: "latest",
       sourceType: "module",
       globals: {
-        console: "readonly",
-        process: "readonly",
-        Buffer: "readonly",
-        FormData: "readonly",
         File: "readonly",
+        FormData: "readonly",
+        process: "readonly",
+        window: "readonly",
+        navigator: "readonly",
+        document: "readonly",
+        console: "readonly",
+        Buffer: "readonly",
         Request: "readonly",
         Response: "readonly"
       }

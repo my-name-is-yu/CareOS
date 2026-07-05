@@ -21,6 +21,9 @@ export function ShiftView({ payload, loading, mode, residentLabel }: Props) {
         </div>
         <div className="status-pill">{loading ? "Compiling" : mode === "on" ? "Memory ON" : "Memory OFF"}</div>
       </header>
+      {payload?.verified === false ? (
+        <div className="warning-badge unverified-hint">unverified — press F for cached fallback</div>
+      ) : null}
       <div className="shift-grid">
         <article className="panel wide">
           <h3>Handoff summary</h3>

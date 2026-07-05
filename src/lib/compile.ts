@@ -30,7 +30,7 @@ export async function compileFromBody(
     throw new Error("Missing note.");
   }
 
-  const hasOpenAIKey = options.hasOpenAIKey ?? Boolean(process.env.OPENAI_API_KEY);
+  const hasOpenAIKey = options.hasOpenAIKey ?? Boolean(globalThis.process?.env.OPENAI_API_KEY);
   if (wantsCached || !hasOpenAIKey) {
     const cached = await readDemoCompile(mode);
     if (cached) return { ...cached, cached: true };

@@ -27,10 +27,8 @@ export default function HomePage() {
       if (event.key.toLowerCase() === "f") {
         if (mode === "off") {
           setOffPayload({ ...fixtureOff, cached: true });
-          setMode("off");
         } else {
           setOnPayload({ ...fixtureOn, cached: true });
-          setMode("on");
         }
       }
     }
@@ -38,7 +36,7 @@ export default function HomePage() {
     return () => globalThis.window.removeEventListener("keydown", onKeyDown);
   }, [mode]);
 
-  async function submit(note: { note: string; transcript?: string }) {
+  async function submit(note: { note: string }) {
     setLoading(true);
     let settled = 0;
     const finish = () => {
@@ -50,7 +48,7 @@ export default function HomePage() {
         const response = await globalThis.fetch("/api/compile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ note: note.note, mode: modeName, transcript: note.transcript })
+          body: JSON.stringify({ note: note.note, mode: modeName })
         });
         if (!response.ok) throw new Error("compile failed");
         const payload = (await response.json()) as CompilePayload;

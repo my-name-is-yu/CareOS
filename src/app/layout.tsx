@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "CareOS",
-  description: "CareOS UI demo"
+  description: "CareOS integration demo readiness"
 };
 
 export default function RootLayout({

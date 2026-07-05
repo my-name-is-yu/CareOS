@@ -1,54 +1,46 @@
 import type { CompileResult } from "./schema";
-import type { HistoryNote } from "./data";
+import { CompileResultSchema } from "./schema";
 
-export type VerificationResult = {
-  result: CompileResult;
-  verified: boolean;
-  droppedFlags: number;
-  droppedCitations: number;
-};
-
-export function normalizeCitationText(value: string): string {
-  return value
-    .normalize("NFKC")
-    .toLowerCase()
-    .replace(/[“”]/g, "\"")
+export function normalizeCitationText(text: string): string {
+  return text
+    .trim()
+    .replace(/[“”]/g, '"')
     .replace(/[‘’]/g, "'")
     .replace(/\s+/g, " ")
-    .trim();
+    .toLowerCase();
 }
 
-export function verifyCompileResult(result: CompileResult, history: HistoryNote[]): VerificationResult {
-  const historyById = new Map(history.map((note) => [note.note_id, normalizeCitationText(note.text)]));
-  let droppedFlags = 0;
+export function verifyCompileResult(
+  result: CompileResult,
+  history: Array<{ note_id: string; text: string }>,
+): {
+  result: CompileResult;
+  verified: boolean;
+  droppedCitations: number;
+  droppedFlags: number;
+} {
+  const parsed = CompileResultSchema.parse(result);
   let droppedCitations = 0;
-
-  const drift_flags = result.drift_flags.flatMap((flag) => {
-    const citations = flag.citations.filter((citation) => {
-      const source = historyById.get(citation.note_id);
-      const verified = source ? source.includes(normalizeCitationText(citation.quote)) : false;
-      if (!verified) {
-        droppedCitations += 1;
+  let droppedFlags = 0;
+  const allowed = new Map(history.map((entry) => [entry.note_id, normalizeCitationText(entry.text)]));
+  const drift_flags = parsed.drift_flags
+    .map((flag) => {
+      const citations = flag.citations.filter((citation) => {
+        const source = allowed.get(citation.note_id);
+        if (!source) return false;
+        return source.includes(normalizeCitationText(citation.quote));
+      });
+      droppedCitations += flag.citations.length - citations.length;
+      if (!citations.length) {
+        droppedFlags += 1;
+        return null;
       }
-      return verified;
-    });
-
-    if (citations.length === 0) {
-      droppedFlags += 1;
-      return [];
-    }
-
-    return [{ ...flag, citations }];
-  });
-
-  return {
-    result: { ...result, drift_flags },
-    verified: droppedFlags === 0 && droppedCitations === 0,
-    droppedFlags,
-    droppedCitations,
-  };
+      return { ...flag, citations };
+    })
+    .filter((flag): flag is NonNullable<typeof flag> => Boolean(flag));
+  return { result: { ...parsed, drift_flags }, verified: droppedFlags === 0 && droppedCitations === 0, droppedCitations, droppedFlags };
 }
 
-export function needsCorrectiveRerun(verification: VerificationResult): boolean {
+export function needsCorrectiveRerun(verification: { droppedFlags: number; result: CompileResult }): boolean {
   return verification.droppedFlags > 0 && verification.result.drift_flags.length === 0;
 }
