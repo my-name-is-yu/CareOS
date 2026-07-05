@@ -1,21 +1,24 @@
 "use client";
 
-import type { CompilePayload } from "@/src/lib/careos-types";
-import type { Resident } from "@/src/lib/careos-types";
+import type { CompilePayload, PatientMemory, Resident } from "@/src/lib/careos-types";
 import { DriftFlag } from "@/src/components/DriftFlag";
 
 type Props = {
   payload: CompilePayload | null;
   loading: boolean;
   resident: Resident;
+  memory: PatientMemory;
   error: string | null;
 };
 
-export function ShiftView({ payload, loading, resident, error }: Props) {
+export function ShiftView({ payload, loading, resident, memory, error }: Props) {
   const result = payload?.result;
   const watchItems = result?.handoff_brief.watch_items.length
     ? result.handoff_brief.watch_items
-    : ["mobility", "medication acceptance", "noise sensitivity"];
+    : memory.watch_patterns.slice(0, 3);
+  const recentChanges = result?.handoff_brief.context_the_note_missed.length
+    ? result.handoff_brief.context_the_note_missed
+    : memory.recent_history.slice(0, 3);
 
   return (
     <section className="shift-view" aria-live="polite">
@@ -32,7 +35,7 @@ export function ShiftView({ payload, loading, resident, error }: Props) {
         <article className="panel patient-summary">
           <h3>Current patient</h3>
           <p>{resident.name}, {resident.age}, room {resident.room}</p>
-          <p className="muted-line">{resident.baseline_traits.join(" / ")}</p>
+          <p className="muted-line">{memory.baseline.slice(0, 2).join(" / ")}</p>
         </article>
         <article className="panel">
           <h3>Today&apos;s watch items</h3>
@@ -43,14 +46,15 @@ export function ShiftView({ payload, loading, resident, error }: Props) {
         <article className="panel">
           <h3>Recent changes</h3>
           <ul>
-            {result?.handoff_brief.context_the_note_missed.length
-              ? result.handoff_brief.context_the_note_missed.map((item, i) => <li key={`${i}-${item}`}>{item}</li>)
-              : ["Slower gait after lunch", "Repeated medication refusal", "Agitation with corridor noise"].map((item) => <li key={item}>{item}</li>)}
+            {recentChanges.map((item, i) => <li key={`${i}-${item}`}>{item}</li>)}
           </ul>
         </article>
         <article className="panel">
           <h3>Care approach</h3>
-          <p>Use calm prompts, allow extra walking time, keep the walker within reach, and reduce hallway noise before medication rounds.</p>
+          <ul>
+            {memory.communication_cues.slice(0, 2).map((item) => <li key={item}>{item}</li>)}
+            {memory.calming_approaches.slice(0, 1).map((item) => <li key={item}>{item}</li>)}
+          </ul>
         </article>
         <article className="panel wide">
           <h3>Observation output</h3>

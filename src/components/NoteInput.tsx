@@ -19,7 +19,7 @@ export function NoteInput({ onSubmit, loading }: Props) {
       <textarea
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        placeholder="Enter the current resident observation."
+        placeholder="Enter the current resident observation for handoff review."
         rows={7}
       />
       <div className="input-actions">
