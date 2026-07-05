@@ -6,11 +6,10 @@ import { DriftFlag } from "@/src/components/DriftFlag";
 type Props = {
   payload: CompilePayload | null;
   loading: boolean;
-  mode: "off" | "on";
   residentLabel: string;
 };
 
-export function ShiftView({ payload, loading, mode, residentLabel }: Props) {
+export function ShiftView({ payload, loading, residentLabel }: Props) {
   const result = payload?.result;
   return (
     <section className="shift-view" aria-live="polite">
@@ -19,10 +18,10 @@ export function ShiftView({ payload, loading, mode, residentLabel }: Props) {
           <p className="eyebrow">Shift handoff</p>
           <h2>{residentLabel}</h2>
         </div>
-        <div className="status-pill">{loading ? "Compiling" : mode === "on" ? "Memory ON" : "Memory OFF"}</div>
+        <div className="status-pill">{loading ? "Compiling" : "Memory always on"}</div>
       </header>
       {payload?.verified === false ? (
-        <div className="warning-badge unverified-hint">unverified — press F for cached fallback</div>
+        <div className="warning-badge unverified-hint">unverified citations removed from drift flags</div>
       ) : null}
       <div className="shift-grid">
         <article className="panel wide">
@@ -55,10 +54,10 @@ export function ShiftView({ payload, loading, mode, residentLabel }: Props) {
           </div>
         </article>
         <article className="panel wide scroller-panel">
-          <h3>21 days of memory</h3>
+          <h3>Resident memory</h3>
           <div className="memory-scroller">
-            {Array.from({ length: 21 }).map((_, index) => (
-              <span key={index}>Day {index + 1} shift memory rolling into resident history</span>
+            {["Baseline", "Communication cues", "Preferences", "Known triggers", "Calming approaches", "Family context", "Watch patterns"].map((label) => (
+              <span key={label}>{label}</span>
             ))}
           </div>
         </article>
@@ -67,13 +66,13 @@ export function ShiftView({ payload, loading, mode, residentLabel }: Props) {
           <div className="warning-badge">{payload?.warnings.length ? payload.warnings.join(" • ") : "No warnings"}</div>
         </article>
         <article className="panel">
-          <h3>Cached state</h3>
-          <p>{payload?.cached ? "Fixture-backed cached response" : "Live response"}</p>
+          <h3>Compile source</h3>
+          <p>{payload ? "Production compile response" : "Awaiting note input"}</p>
         </article>
         <article className="panel wide">
           <h3>Drift flags</h3>
           <div className="stack">
-            {result?.drift_flags.length ? result.drift_flags.map((flag, i) => <DriftFlag key={`${flag.claim}-${i}`} flag={flag} />) : <p>No drift flags in this mode.</p>}
+            {result?.drift_flags.length ? result.drift_flags.map((flag, i) => <DriftFlag key={`${flag.claim}-${i}`} flag={flag} />) : <p>No drift flags surfaced.</p>}
           </div>
         </article>
       </div>
