@@ -35,8 +35,11 @@ export function NoteInput({ onSubmit, loading }: Props) {
       try {
         const response = await globalThis.fetch("/api/transcribe", { method: "POST", body: formData });
         if (response.ok) {
-          const data = (await response.json()) as { transcript?: string };
-          if (data.transcript) setTranscript(data.transcript);
+          const data = (await response.json()) as { text?: string };
+          if (data.text) {
+            setTranscript(data.text);
+            setNote(data.text);
+          }
         }
       } catch {
         // Demo mode falls back to typed note display when transcription is unavailable.
