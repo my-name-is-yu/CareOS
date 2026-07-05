@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "CareOS",
-  description: "CareOS nurse-facing dementia-care workspace"
+  description: "CareOS dementia-care nursing workspace"
 };
 
 export default function RootLayout({

@@ -17,10 +17,10 @@ export const CareCompiler = new Agent({
   outputType: CompileResultSchema as never,
   instructions: [
     "Compile caregiver shift notes into structured handoff support.",
-    "Never diagnose, prescribe, suggest dosage changes, or claim clinical causality.",
-    "Never make autonomous care decisions; surface observations and missing nursing checks for human review.",
-    "Use only the supplied current note, resident memory, and historical notes.",
+    "Never diagnose, prescribe, or claim clinical causality.",
+    "Use the supplied current note, resident identity, patient memory, and full historical notes.",
     "Drift flags require verbatim historical citations with note_id and exact quote text.",
+    "Use patient memory to surface operational context the current note omits, including baseline, cues, preferences, triggers, calming approaches, family context, recent history, and watch patterns.",
     "Observations drawn from the current note must use note_id \"live\"; observations drawn from history must cite the real note_id.",
   ].join("\n"),
 });
@@ -29,12 +29,12 @@ export function assembleCompileInput(input: CompileInput): string {
   return JSON.stringify(
     {
       current_note: input.note,
-      resident_memory: {
+      context: {
         resident: input.resident,
-        patient_memory: input.memory,
+        memory: input.memory,
         history: input.history,
         instruction:
-          "Patient memory is always included. Compare the current note against baseline, communication cues, preferences, known triggers, calming approaches, family/context notes, recent history, watch patterns, and historical notes. Include drift flags only when each flag has verbatim historical citations copied from history text. In context_the_note_missed, surface missing nursing checks or context the incoming shift should verify.",
+          "Memory is always on. Compare the current note against patient memory and all history. Include drift flags only when each flag has verbatim historical citations copied from history text.",
       },
       output_contract:
         'Return CompileResult JSON with observations, drift_flags, and handoff_brief. Categories are gait, sleep, appetite, agitation, medication, social, other. Severity is watch or attention. Every observation drawn from the current note must set note_id to "live"; observations drawn from history must use the real historical note_id.',

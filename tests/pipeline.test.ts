@@ -1,11 +1,21 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { loadHistory, loadMemory, loadResident } from "../src/lib/data";
-import { buildCompileInput, compileFromBody } from "../src/lib/compile";
-import { lintClinicalLanguage } from "../src/lib/lint";
-import { createRealtimeSession } from "../src/lib/realtime-session";
 import { CompileEnvelopeSchema, CompileResultSchema, type CompileResult } from "../src/lib/schema";
+import { buildCompileInput, compileFromBody, CompileRequestBodySchema } from "../src/lib/compile";
+import { lintClinicalLanguage } from "../src/lib/lint";
+import { buildRealtimeInstructions } from "../src/lib/realtime";
 import { normalizeCitationText, verifyCompileResult } from "../src/lib/verify";
+
+const originalCwd = globalThis.process.cwd();
+const originalKey = globalThis.process.env.OPENAI_API_KEY;
+
+afterEach(async () => {
+  globalThis.process.chdir(originalCwd);
+  globalThis.process.env.OPENAI_API_KEY = originalKey;
+  vi.restoreAllMocks();
+  vi.resetModules();
+});
 
 const validResult: CompileResult = {
   observations: [{ category: "gait", text: "Slower gait observed.", note_id: "note-001" }],
@@ -29,29 +39,36 @@ describe("pipeline schema", () => {
 });
 
 describe("patient memory data", () => {
-  it("loads resident memory and historical notes", async () => {
-    const [resident, memory, history] = await Promise.all([loadResident(), loadMemory(), loadHistory()]);
+  it("includes gait and medication-refusal history patterns", async () => {
+    const history = await loadHistory();
+    expect(history.some((entry) => entry.text.includes("slower than baseline"))).toBe(true);
+    expect(history.some((entry) => entry.text.includes("refused"))).toBe(true);
+    expect(history.some((entry) => entry.text.includes("corridor"))).toBe(true);
+  });
 
+  it("loads resident identity without embedding memory", async () => {
+    const resident = await loadResident();
     expect(resident).toEqual({
-      name: "Default Resident",
+      name: "Aiko Mori",
       age: 84,
       room: "A-101",
       timezone: "Asia/Tokyo",
       language: "ja",
     });
-    expect(memory).toMatchObject({
+    expect(resident).not.toHaveProperty("memory");
+  });
+
+  it("loads patient memory with operational care fields", async () => {
+    await expect(loadMemory()).resolves.toMatchObject({
       baseline: expect.arrayContaining([expect.stringContaining("walker")]),
-      communication_cues: expect.arrayContaining([expect.stringContaining("short, calm sentences")]),
-      preferences: expect.arrayContaining([expect.stringContaining("warm tea")]),
+      communication_cues: expect.arrayContaining([expect.stringContaining("short sentences")]),
+      preferences: expect.arrayContaining([expect.stringContaining("door partly closed")]),
       known_triggers: expect.arrayContaining([expect.stringContaining("Corridor noise")]),
-      calming_approaches: expect.arrayContaining([expect.stringContaining("Lower voice volume")]),
-      family_context_notes: expect.arrayContaining([expect.stringContaining("Daughter")]),
-      recent_history: expect.arrayContaining([expect.stringContaining("slower walking")]),
-      watch_patterns: expect.arrayContaining([expect.stringContaining("hallway turns")]),
+      calming_approaches: expect.arrayContaining([expect.stringContaining("Lower room noise")]),
+      family_context_notes: expect.arrayContaining([expect.stringContaining("Mika")]),
+      recent_history: expect.arrayContaining([expect.stringContaining("slower gait")]),
+      watch_patterns: expect.arrayContaining([expect.stringContaining("medication refusal")]),
     });
-    expect(history.some((entry) => entry.text.includes("slower than baseline"))).toBe(true);
-    expect(history.some((entry) => entry.text.includes("refused"))).toBe(true);
-    expect(history.some((entry) => entry.text.includes("corridor"))).toBe(true);
   });
 });
 
@@ -94,7 +111,9 @@ describe("clinical safety warnings", () => {
       "Consider a diagnosis of vascular issues.",
       "Prescribing a new plan for the resident.",
       "Increase the dosage per the chart.",
+      "Signs of underlying disease noted.",
       "Symptoms consistent with parkinson's.",
+      "Behavior consistent with alzheimer's.",
       "Notable progression of dementia this week.",
       "The resident must administer the medication without nurse review.",
       "No nurse checks needed tonight.",
@@ -110,31 +129,39 @@ describe("clinical safety warnings", () => {
 
 describe("compile entrypoint contract", () => {
   const resident = {
-    name: "Default Resident",
+    name: "Aiko Mori",
     age: 84,
     room: "A-101",
     timezone: "Asia/Tokyo",
     language: "ja",
   };
   const memory = {
-    baseline: ["Slow walker with front approach preferred."],
-    communication_cues: ["Use short, calm sentences."],
-    preferences: ["Warm tea after lunch."],
-    known_triggers: ["Corridor noise."],
-    calming_approaches: ["Lower voice volume."],
-    family_context_notes: ["Daughter visits Wednesdays."],
-    recent_history: ["Slower walking after lunch."],
-    watch_patterns: ["Hallway turn hesitation."],
+    baseline: ["slow gait"],
+    communication_cues: ["short sentences"],
+    preferences: ["quiet room"],
+    known_triggers: ["corridor noise"],
+    calming_approaches: ["lower room noise"],
+    family_context_notes: ["daughter Mika visits"],
+    recent_history: ["recent slower gait"],
+    watch_patterns: ["medication refusal"],
   };
   const history = [{ note_id: "note-001", date: "2026-07-01", shift: "day", author: "Yamada", text: "History" }];
 
-  it("always assembles Product v1 patient memory fields and full history", () => {
-    const input = JSON.parse(buildCompileInput({ note: "New note", resident, memory, history }));
+  it("accepts only the production note request shape", () => {
+    expect(CompileRequestBodySchema.parse({ note: "New note" })).toEqual({ note: "New note" });
+    expect(() => CompileRequestBodySchema.parse({ note: "New note", extra: true })).toThrow();
+  });
 
-    expect(input.current_note).toBe("New note");
-    expect(input.resident_memory.resident).toEqual(resident);
-    expect(input.resident_memory.patient_memory).toEqual(memory);
-    expect(Object.keys(input.resident_memory.patient_memory).sort()).toEqual([
+  it("rejects blank notes before model execution", async () => {
+    await expect(compileFromBody({ note: "   " }, { hasOpenAIKey: true })).rejects.toThrow("Missing note.");
+  });
+
+  it("assembles memory-always-on input with resident, memory, and all history", () => {
+    const assembled = JSON.parse(buildCompileInput({ note: "New note", resident, memory, history }));
+    expect(assembled.current_note).toBe("New note");
+    expect(assembled.context.resident).toEqual(resident);
+    expect(assembled.context.memory).toEqual(memory);
+    expect(Object.keys(assembled.context.memory).sort()).toEqual([
       "baseline",
       "calming_approaches",
       "communication_cues",
@@ -144,72 +171,96 @@ describe("compile entrypoint contract", () => {
       "recent_history",
       "watch_patterns",
     ]);
-    expect(input.resident_memory.history).toEqual(history);
-    expect(input.resident_memory.instruction).toContain("Patient memory is always included");
-    expect(input.resident_memory.instruction).toContain("communication cues");
-    expect(input.resident_memory.instruction).toContain("known triggers");
-    expect(input.resident_memory.instruction).toContain("calming approaches");
-    expect(input.resident_memory.instruction).toContain("family/context notes");
-    expect(input.resident_memory.instruction).toContain("watch patterns");
-    expect(input.resident_memory.instruction).toContain("missing nursing checks");
-    expect(input.output_contract).toContain('note_id to "live"');
+    expect(assembled.context.history).toEqual(history);
+    expect(assembled.context.instruction).toContain("Memory is always on");
+    expect(assembled.output_contract).toContain('note_id to "live"');
   });
 
-  it("requires a server OpenAI key instead of returning local canned output", async () => {
-    await expect(compileFromBody({ note: "Local note" }, { hasOpenAIKey: false })).rejects.toThrow("OPENAI_API_KEY is required for compile.");
+  it("requires OpenAI for production compile", async () => {
+    globalThis.process.env.OPENAI_API_KEY = "";
+    await expect(compileFromBody({ note: "Local note" }, { hasOpenAIKey: false })).rejects.toThrow("OPENAI_API_KEY is required.");
   });
 });
 
-describe("Realtime session route contract", () => {
-  it("uses the OpenAI SDK client-secret API and returns only Lane 2 clientSecret shape", async () => {
+describe("realtime session route", () => {
+  it("builds dementia-care instructions with patient memory fields and refusal boundaries", () => {
+    const instructions = buildRealtimeInstructions(
+      {
+        name: "Aiko Mori",
+        age: 84,
+        room: "A-101",
+        timezone: "Asia/Tokyo",
+        language: "ja",
+      },
+      {
+        baseline: ["Usually walks slowly with walker support."],
+        communication_cues: ["Use short calm prompts."],
+        preferences: ["Prefers a quiet room."],
+        known_triggers: ["Corridor noise."],
+        calming_approaches: ["Close the door and re-approach calmly."],
+        family_context_notes: ["Daughter visits on weekends."],
+        recent_history: ["Refused evening medication twice this week."],
+        watch_patterns: ["Slower gait near hallway turns."],
+      },
+      [{ note_id: "note-001", date: "2026-07-01", shift: "day", author: "Yamada", text: "Walked slower than baseline." }],
+    );
+
+    expect(instructions).toContain("Aiko Mori");
+    expect(instructions).toContain("Usually walks slowly with walker support.");
+    expect(instructions).toContain("Use short calm prompts.");
+    expect(instructions).toContain("Prefers a quiet room.");
+    expect(instructions).toContain("Corridor noise.");
+    expect(instructions).toContain("Close the door and re-approach calmly.");
+    expect(instructions).toContain("Daughter visits on weekends.");
+    expect(instructions).toContain("Refused evening medication twice this week.");
+    expect(instructions).toContain("Slower gait near hallway turns.");
+    expect(instructions).toContain("Refuse diagnosis, prescribing");
+    expect(instructions).toContain("Draft concise handoff text");
+    expect(instructions).not.toContain("Baseline traits");
+  });
+
+  it("returns only ephemeral client secret fields and never the server API key", async () => {
+    globalThis.process.env.OPENAI_API_KEY = "sk-server-secret";
     const create = vi.fn(async () => ({
-      value: "ek_test",
-      expires_at: 123,
+      value: "ek_ephemeral_client_secret",
+      expires_at: 1234567890,
+      type: "realtime",
+    }));
+    vi.doMock("openai", () => ({
+      default: class MockOpenAI {
+        realtime = { clientSecrets: { create } };
+      },
     }));
 
-    const session = await createRealtimeSession({
-      apiKey: "sk-server",
-      client: { realtime: { clientSecrets: { create } } },
-    });
+    const { POST } = await import("../src/app/api/realtime/session/route");
+    const response = await POST();
+    const body = await response.json();
 
-    expect(create).toHaveBeenCalledWith({
-      session: {
-        type: "realtime",
-        model: "gpt-4o-realtime-preview",
-        audio: { output: { voice: "alloy" } },
+    expect(create).toHaveBeenCalled();
+    expect(body).toEqual({ clientSecret: { value: "ek_ephemeral_client_secret", expiresAt: 1234567890 } });
+    expect(body.clientSecret.value).toMatch(/^ek_/);
+    expect(JSON.stringify(body)).not.toContain("sk-server-secret");
+    expect(JSON.stringify(body)).not.toContain("OPENAI_API_KEY");
+  });
+
+  it("refuses non-ephemeral realtime client secret responses", async () => {
+    globalThis.process.env.OPENAI_API_KEY = "sk-server-secret";
+    vi.doMock("openai", () => ({
+      default: class MockOpenAI {
+        realtime = {
+          clientSecrets: {
+            create: vi.fn(async () => ({ value: "sk_server_secret", expires_at: 1234567890 })),
+          },
+        };
       },
-    });
-    expect(session).toEqual({ clientSecret: { value: "ek_test", expiresAt: 123 } });
-    expect(JSON.stringify(session)).not.toContain("sk-server");
-  });
+    }));
 
-  it("refuses non-ephemeral Realtime secrets", async () => {
-    await expect(
-      createRealtimeSession({
-        apiKey: "sk-server",
-        client: {
-          realtime: {
-            clientSecrets: {
-              create: vi.fn(async () => ({ value: "not_ephemeral", expires_at: 123 })),
-            },
-          },
-        },
-      }),
-    ).rejects.toThrow("ephemeral client secret");
-  });
+    const { POST } = await import("../src/app/api/realtime/session/route");
+    const response = await POST();
+    const body = await response.json();
 
-  it("refuses SDK responses that echo the server API key", async () => {
-    await expect(
-      createRealtimeSession({
-        apiKey: "sk-server",
-        client: {
-          realtime: {
-            clientSecrets: {
-              create: vi.fn(async () => ({ value: "ek_test", expires_at: 123, apiKey: "sk-server" })),
-            },
-          },
-        },
-      }),
-    ).rejects.toThrow("server-only credentials");
+    expect(response.status).toBe(500);
+    expect(body.error).toContain("not ephemeral");
+    expect(JSON.stringify(body)).not.toContain("sk-server-secret");
   });
 });

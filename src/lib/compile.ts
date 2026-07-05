@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import { assembleCompileInput, runCareCompiler, type CompileInput } from "./agent";
 import { loadHistory, loadMemory, loadResident } from "./data";
 import { lintClinicalLanguage } from "./lint";
@@ -7,9 +9,9 @@ import { needsCorrectiveRerun, verifyCompileResult } from "./verify";
 const correctiveInstruction =
   "Previous drift flags had unsupported citations. Return drift_flags only if every citation quote is copied verbatim from the provided history text.";
 
-export type CompileRequestBody = {
-  note?: unknown;
-};
+export const CompileRequestBodySchema = z.object({ note: z.string().min(1) }).strict();
+
+export type CompileRequestBody = z.infer<typeof CompileRequestBodySchema>;
 
 export function buildCompileInput(input: CompileInput): string {
   return assembleCompileInput(input);
@@ -20,7 +22,8 @@ export async function compileFromBody(
   options: { hasOpenAIKey?: boolean; now?: () => number } = {},
 ): Promise<CompileEnvelope> {
   const started = options.now?.() ?? Date.now();
-  const note = typeof body.note === "string" ? body.note.trim() : "";
+  const parsedBody = CompileRequestBodySchema.parse(body);
+  const note = parsedBody.note.trim();
 
   if (!note) {
     throw new Error("Missing note.");
@@ -28,7 +31,7 @@ export async function compileFromBody(
 
   const hasOpenAIKey = options.hasOpenAIKey ?? Boolean(globalThis.process?.env.OPENAI_API_KEY);
   if (!hasOpenAIKey) {
-    throw new Error("OPENAI_API_KEY is required for compile.");
+    throw new Error("OPENAI_API_KEY is required.");
   }
 
   const [resident, memory, history] = await Promise.all([loadResident(), loadMemory(), loadHistory()]);

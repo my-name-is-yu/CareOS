@@ -1,12 +1,17 @@
 # CareOS Product v1 Architecture
 
-CareOS is a Next.js App Router application for a nurse-facing dementia-care workspace. Product v1 keeps the production path narrow: typed or voice-captured notes enter one memory-backed compile pipeline, patient memory is loaded from local JSON storage, and browser voice uses OpenAI Realtime ephemeral client secrets generated server-side.
+CareOS is a Next.js App Router application for a nurse-facing dementia-care workspace. Product v1 keeps the production path narrow: typed observations enter one memory-backed compile pipeline, patient memory is loaded from local JSON storage, and browser voice conversation uses OpenAI Realtime ephemeral client secrets generated server-side.
 
 ## Runtime Shape
 
-```
+```text
 Browser workspace
-  |-- typed note or transcribed note
+  |-- GET /api/resident
+  |     |-- resident identity
+  |     |-- historical notes
+  |     |-- patient memory
+  |
+  |-- typed observation
   |-- POST /api/compile { note }
   |     |-- load data/resident.json
   |     |-- split resident identity and nested patient memory
@@ -16,6 +21,7 @@ Browser workspace
   |     |-- warn on unsafe clinical language
   |
   |-- POST /api/realtime/session
+        |-- load resident, memory, and history into server instructions
         |-- OpenAI SDK realtime.clientSecrets.create()
         |-- returns { clientSecret: { value, expiresAt } }
 ```
@@ -29,7 +35,7 @@ Product v1 uses JSON-backed local persistence:
 - `loadMemory()` returns nested memory: baseline, communication cues, preferences, known triggers, calming approaches, family/context notes, recent history, and watch patterns.
 - `data/history.json` stores shift-note history used for citation evidence.
 
-This storage boundary is intentionally simple for v1. Database schema and API expansion belong to the main data lane.
+This storage boundary is intentionally simple for v1. A database, auth, and EHR integration can replace the local JSON boundary later without changing the application contract.
 
 ## Compile Pipeline
 
@@ -42,11 +48,24 @@ This storage boundary is intentionally simple for v1. Database schema and API ex
 - instructions to surface missing nursing checks,
 - the shared `CompileResult` schema from `src/lib/schema.ts`.
 
-There is no memory-disabled compile path in Product v1. The model must return observations, drift flags, and a handoff brief. Observations from the current note use `note_id: "live"`; observations or drift evidence from history use historical note IDs. Patient memory guides comparison, but drift citations still need verbatim historical note evidence.
+The model returns observations, drift flags, and a handoff brief. Observations from the current note use `note_id: "live"`; observations or drift evidence from history use historical note IDs. Patient memory guides comparison, while drift citations require verbatim historical note evidence.
 
 ## Realtime Voice Boundary
 
-Browser voice interaction uses the OpenAI Realtime Agents SDK path through `POST /api/realtime/session`. The route creates an ephemeral client secret with the installed OpenAI SDK API, `openai.realtime.clientSecrets.create`, and returns `{ clientSecret: { value, expiresAt } }` to the browser. The value must start with `ek_`, and the server `OPENAI_API_KEY` never leaves the server route.
+Browser voice interaction uses `@openai/agents-realtime` in the client and `POST /api/realtime/session` on the server. The route loads resident identity, patient memory, and historical notes, builds dementia-care nursing instructions, then calls `openai.realtime.clientSecrets.create`.
+
+The route returns only:
+
+```ts
+{
+  clientSecret: {
+    value: string;
+    expiresAt: number;
+  };
+}
+```
+
+The value must start with `ek_`, and `OPENAI_API_KEY` never leaves the server route.
 
 ## Safety Guardrails
 
@@ -55,7 +74,7 @@ CareOS output is operational handoff support for licensed staff, not medical aut
 - No diagnosis.
 - No prescriptions or medication/dosage changes.
 - No autonomous care decisions.
-- Drift flags require verbatim citations from patient memory or history.
+- Drift flags require verbatim citations from historical notes.
 - Unsupported citations are removed from returned drift flags.
 - Clinical-risk language is returned as warnings for nurse review.
 - Missing checks are surfaced as items for staff to verify, not as directives.
@@ -73,4 +92,4 @@ CareOS output is operational handoff support for licensed staff, not medical aut
 }
 ```
 
-`verified: false` means one or more citations were dropped or a drift flag could not be fully supported by patient-memory evidence.
+`verified: false` means one or more citations were dropped or a drift flag could not be fully supported by historical note evidence.

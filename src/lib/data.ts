@@ -24,9 +24,7 @@ export type PatientMemory = {
   watch_patterns: string[];
 };
 
-type ResidentRecord = Resident & {
-  memory: PatientMemory;
-};
+type ResidentFile = Resident & { memory: PatientMemory };
 
 export type HistoryNote = {
   note_id: string;
@@ -41,19 +39,19 @@ async function readJson<T>(filePath: string): Promise<T> {
 }
 
 export async function loadResident(): Promise<Resident> {
-  const record = await readJson<ResidentRecord>(path.join(dataRoot(), "resident.json"));
+  const resident = await readJson<ResidentFile>(path.join(dataRoot(), "resident.json"));
   return {
-    name: record.name,
-    age: record.age,
-    room: record.room,
-    timezone: record.timezone,
-    language: record.language,
+    name: resident.name,
+    age: resident.age,
+    room: resident.room,
+    timezone: resident.timezone,
+    language: resident.language,
   };
 }
 
 export async function loadMemory(): Promise<PatientMemory> {
-  const { memory } = await readJson<ResidentRecord>(path.join(dataRoot(), "resident.json"));
-  return memory;
+  const resident = await readJson<ResidentFile>(path.join(dataRoot(), "resident.json"));
+  return resident.memory;
 }
 
 export async function loadHistory(): Promise<HistoryNote[]> {
