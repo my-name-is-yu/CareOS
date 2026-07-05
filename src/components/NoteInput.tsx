@@ -42,7 +42,7 @@ export function NoteInput({ onSubmit, loading }: Props) {
           }
         }
       } catch {
-        // Demo mode falls back to typed note display when transcription is unavailable.
+        // Keep typed notes available when microphone transcription is unavailable.
       }
       stream.getTracks().forEach((track) => track.stop());
     };

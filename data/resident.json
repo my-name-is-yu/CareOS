@@ -1,8 +1,48 @@
 {
-  "name": "Default Resident",
+  "name": "Aiko Mori",
   "age": 84,
   "room": "A-101",
-  "baseline_traits": ["slow gait", "prefers calm communication", "uses walker"],
   "timezone": "Asia/Tokyo",
-  "language": "ja"
+  "language": "ja",
+  "memory": {
+    "baseline": [
+      "Walks slowly but steadily with a walker during daytime routines.",
+      "Usually accepts evening medication when a familiar nurse explains the sequence first.",
+      "Often rests after lunch and prefers unhurried transitions."
+    ],
+    "communication_cues": [
+      "Use short sentences and pause before repeating a question.",
+      "Approach from the front, introduce yourself, and explain the next care step before touching equipment.",
+      "Offer either-or choices instead of open-ended prompts during medication and bathing routines."
+    ],
+    "preferences": [
+      "Prefers the room door partly closed during evening care.",
+      "Responds well to warm tea after meals.",
+      "Likes hearing that her daughter Mika was updated when family context is relevant."
+    ],
+    "known_triggers": [
+      "Corridor noise near the room can increase agitation.",
+      "Unfamiliar staff moving quickly during medication rounds can lead to refusal.",
+      "Unexpected walker repositioning can make transfers feel unsafe."
+    ],
+    "calming_approaches": [
+      "Lower room noise, sit at eye level, and restart the explanation slowly.",
+      "Give a short break before re-offering medication with a familiar staff member when possible.",
+      "Confirm where the walker is before asking her to stand."
+    ],
+    "family_context_notes": [
+      "Daughter Mika is the primary family contact and usually visits on Sunday afternoons.",
+      "Family reports that quiet music after dinner has helped with settling in the past."
+    ],
+    "recent_history": [
+      "Recent notes show slower gait after lunch and near hallway turns.",
+      "Two recent evening notes include the same medication refusal phrase.",
+      "Noise from the corridor was linked to a request for a quieter room."
+    ],
+    "watch_patterns": [
+      "Track whether gait slowness appears after lunch or also during morning care.",
+      "Watch for repeated medication refusal when unfamiliar staff or corridor noise are present.",
+      "Escalate only as an operational handoff concern; avoid diagnostic or prescribing language."
+    ]
+  }
 }
