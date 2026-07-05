@@ -212,5 +212,453 @@
       "name": "Haruto Sato"
     },
     "body": "My father spent over thirty years as a railway engineer and still lights up when anyone asks him about the old train routes. He also never misses a baseball broadcast on the radio if he can help it."
+  },
+  {
+    "id": "rec-soap-006",
+    "residentId": "haruko-tanaka",
+    "type": "soap_note",
+    "occurredAt": "2026-06-25T09:10:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Fujimoto"
+    },
+    "body": "Resident looked for her red cardigan after breakfast and became uneasy when it was not on the chair. Settled after staff brought the cardigan and confirmed the morning plan.",
+    "legacyNoteId": "note-006"
+  },
+  {
+    "id": "rec-obs-003",
+    "residentId": "haruko-tanaka",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-27T14:20:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Tanaka"
+    },
+    "body": "Resident folded towels with staff after lunch and appeared calm when given one task at a time. She smiled when the lavender hand cream was offered."
+  },
+  {
+    "id": "rec-med-004",
+    "residentId": "haruko-tanaka",
+    "type": "medication_record",
+    "occurredAt": "2026-06-29T20:00:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Fujimoto"
+    },
+    "body": "Evening medication accepted after staff placed the red cardigan on the bed and explained each step in a quiet voice."
+  },
+  {
+    "id": "rec-family-003",
+    "residentId": "haruko-tanaka",
+    "type": "family_memory",
+    "occurredAt": "2026-06-21T11:30:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Naoko Tanaka"
+    },
+    "body": "My aunt kept a small sewing table at home and always liked folding clean towels before tea. Lavender scent and her red cardigan both help her feel ready for the day."
+  },
+  {
+    "id": "rec-incident-003",
+    "residentId": "haruko-tanaka",
+    "type": "incident_report",
+    "occurredAt": "2026-07-02T07:45:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Kondo"
+    },
+    "body": "Morning care was rushed because of a room change nearby; resident became tearful and asked twice where her cardigan was. Staff paused, found the cardigan, and restarted care slowly."
+  },
+  {
+    "id": "rec-soap-007",
+    "residentId": "masao-nakamura",
+    "type": "soap_note",
+    "occurredAt": "2026-06-24T17:40:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Ito"
+    },
+    "body": "Resident asked to check the garden gate before dinner and paced near the window when the rain kept him indoors. He settled after staff showed him the garden from the lounge.",
+    "legacyNoteId": "note-007"
+  },
+  {
+    "id": "rec-obs-004",
+    "residentId": "masao-nakamura",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-26T10:15:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Yamada"
+    },
+    "body": "Resident watered the potted basil on the balcony with staff supervision and stayed engaged for fifteen minutes. Short instructions worked better than group activity prompts."
+  },
+  {
+    "id": "rec-med-005",
+    "residentId": "masao-nakamura",
+    "type": "medication_record",
+    "occurredAt": "2026-06-30T08:10:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Ito"
+    },
+    "body": "Morning medication accepted after breakfast once staff let him check the small balcony plants first."
+  },
+  {
+    "id": "rec-family-004",
+    "residentId": "masao-nakamura",
+    "type": "family_memory",
+    "occurredAt": "2026-06-22T16:00:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Keiko Nakamura"
+    },
+    "body": "My husband grew vegetables for decades and still talks about soil, rain, and gate latches. He feels useful when someone asks him to inspect a plant or carry a small watering can."
+  },
+  {
+    "id": "rec-incident-004",
+    "residentId": "masao-nakamura",
+    "type": "incident_report",
+    "occurredAt": "2026-07-03T18:05:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Yamada"
+    },
+    "body": "Heavy rain at dinner time prevented the usual garden view walk; resident paced by the exit and asked if the gate was locked. Staff moved him to the lounge window and he settled."
+  },
+  {
+    "id": "rec-soap-008",
+    "residentId": "emiko-watanabe",
+    "type": "soap_note",
+    "occurredAt": "2026-06-25T12:25:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Sato"
+    },
+    "body": "Resident ate slowly at lunch and pushed away cold soup. She accepted more when the bowl was warmed and staff sat beside her without hurrying.",
+    "legacyNoteId": "note-008"
+  },
+  {
+    "id": "rec-obs-005",
+    "residentId": "emiko-watanabe",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-28T15:10:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Kondo"
+    },
+    "body": "Resident hummed along to an old enka song during afternoon tea and maintained eye contact longer than usual when staff used her preferred nickname."
+  },
+  {
+    "id": "rec-med-006",
+    "residentId": "emiko-watanabe",
+    "type": "medication_record",
+    "occurredAt": "2026-07-01T19:50:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Sato"
+    },
+    "body": "Evening medication accepted after staff offered warm water and used her preferred nickname before explaining the dose."
+  },
+  {
+    "id": "rec-family-005",
+    "residentId": "emiko-watanabe",
+    "type": "family_memory",
+    "occurredAt": "2026-06-20T13:00:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Rina Watanabe"
+    },
+    "body": "Grandmother sang enka while cooking and always disliked cold soup. She responds warmly when people call her Emi-san, especially during meals."
+  },
+  {
+    "id": "rec-incident-005",
+    "residentId": "emiko-watanabe",
+    "type": "incident_report",
+    "occurredAt": "2026-07-03T12:40:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Kondo"
+    },
+    "body": "Lunch tray arrived late and the soup cooled; resident refused several bites and turned away. Staff replaced the soup with a warmer bowl and intake improved."
+  },
+  {
+    "id": "rec-soap-009",
+    "residentId": "shigeru-kobayashi",
+    "type": "soap_note",
+    "occurredAt": "2026-06-26T06:50:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Mori"
+    },
+    "body": "Resident woke before sunrise and asked whether the workshop had opened. He became calmer after staff gave him a small cloth to polish the wooden handrail.",
+    "legacyNoteId": "note-009"
+  },
+  {
+    "id": "rec-obs-006",
+    "residentId": "shigeru-kobayashi",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-29T09:30:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Ito"
+    },
+    "body": "Resident sorted screws and washers from the activity box for ten minutes and followed simple step-by-step prompts. He became distracted when two people spoke at once."
+  },
+  {
+    "id": "rec-med-007",
+    "residentId": "shigeru-kobayashi",
+    "type": "medication_record",
+    "occurredAt": "2026-06-30T07:30:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Mori"
+    },
+    "body": "Morning medication accepted after breakfast when staff framed it as the first step before his handrail polishing routine."
+  },
+  {
+    "id": "rec-family-006",
+    "residentId": "shigeru-kobayashi",
+    "type": "family_memory",
+    "occurredAt": "2026-06-23T10:45:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Daichi Kobayashi"
+    },
+    "body": "Father was a carpenter and liked starting work early. Giving him a safe object to inspect or polish often helps him feel settled and respected."
+  },
+  {
+    "id": "rec-incident-006",
+    "residentId": "shigeru-kobayashi",
+    "type": "incident_report",
+    "occurredAt": "2026-07-02T06:35:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Ito"
+    },
+    "body": "Two staff members gave different morning instructions at the same time; resident raised his voice and pushed the chair back. He settled after one staff member repeated a single task."
+  },
+  {
+    "id": "rec-soap-010",
+    "residentId": "yumi-takahashi",
+    "type": "soap_note",
+    "occurredAt": "2026-06-25T21:10:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Tanaka"
+    },
+    "body": "Resident called out for her older sister after lights-out and held the bed rail tightly. She relaxed when staff brought the blue shawl and played a short lullaby.",
+    "legacyNoteId": "note-010"
+  },
+  {
+    "id": "rec-obs-007",
+    "residentId": "yumi-takahashi",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-27T16:25:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Yamada"
+    },
+    "body": "Resident joined the flower arranging table and stayed focused when given soft blue flowers first. She became quiet and smiled when staff praised the color choice."
+  },
+  {
+    "id": "rec-med-008",
+    "residentId": "yumi-takahashi",
+    "type": "medication_record",
+    "occurredAt": "2026-06-30T20:20:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Tanaka"
+    },
+    "body": "Evening medication accepted after staff placed the blue shawl over her shoulders and used a gentle countdown before each step."
+  },
+  {
+    "id": "rec-family-007",
+    "residentId": "yumi-takahashi",
+    "type": "family_memory",
+    "occurredAt": "2026-06-21T12:10:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Sachiko Takahashi"
+    },
+    "body": "Mother loved arranging flowers with her sister and has always found blue fabrics comforting at night. A short lullaby was part of their bedtime routine."
+  },
+  {
+    "id": "rec-incident-007",
+    "residentId": "yumi-takahashi",
+    "type": "incident_report",
+    "occurredAt": "2026-07-03T21:00:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Yamada"
+    },
+    "body": "Room lights were turned off before the blue shawl was within reach; resident called out and gripped the bed rail. Staff restored the shawl routine and she settled."
+  },
+  {
+    "id": "rec-soap-011",
+    "residentId": "taro-yamamoto",
+    "type": "soap_note",
+    "occurredAt": "2026-06-24T08:45:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Kondo"
+    },
+    "body": "Resident asked for the morning newspaper and declined breakfast until it was placed on the table. Ate well after reading the headlines aloud with staff.",
+    "legacyNoteId": "note-011"
+  },
+  {
+    "id": "rec-obs-008",
+    "residentId": "taro-yamamoto",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-28T11:00:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Fujimoto"
+    },
+    "body": "Resident organized playing cards by suit and chatted about old neighborhood shops. He became impatient when the table was cleared before he finished sorting."
+  },
+  {
+    "id": "rec-med-009",
+    "residentId": "taro-yamamoto",
+    "type": "medication_record",
+    "occurredAt": "2026-07-01T08:15:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Kondo"
+    },
+    "body": "Morning medication accepted after newspaper headlines were reviewed and staff explained that breakfast would follow the same routine."
+  },
+  {
+    "id": "rec-family-008",
+    "residentId": "taro-yamamoto",
+    "type": "family_memory",
+    "occurredAt": "2026-06-23T15:30:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Akira Yamamoto"
+    },
+    "body": "My father ran a small stationery shop and still likes reading newspaper headlines aloud before breakfast. He dislikes having papers moved before he says he is done."
+  },
+  {
+    "id": "rec-incident-008",
+    "residentId": "taro-yamamoto",
+    "type": "incident_report",
+    "occurredAt": "2026-07-02T08:35:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Fujimoto"
+    },
+    "body": "Newspaper was missing from the breakfast table; resident refused the first tray and asked staff to find the headlines. Meal restarted smoothly once the paper was returned."
+  },
+  {
+    "id": "rec-soap-012",
+    "residentId": "setsuko-ito",
+    "type": "soap_note",
+    "occurredAt": "2026-06-26T13:05:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Sato"
+    },
+    "body": "Resident became tired during the hallway walk after lunch and asked to sit near the aquarium. Breathing appeared settled after a quiet rest on the bench.",
+    "legacyNoteId": "note-012"
+  },
+  {
+    "id": "rec-obs-009",
+    "residentId": "setsuko-ito",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-29T10:40:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Mori"
+    },
+    "body": "Resident watched the aquarium for several minutes and named the orange fish. She followed transfer cues best when staff counted slowly from one to three."
+  },
+  {
+    "id": "rec-med-010",
+    "residentId": "setsuko-ito",
+    "type": "medication_record",
+    "occurredAt": "2026-07-01T12:10:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Sato"
+    },
+    "body": "Midday medication accepted after staff moved the chair so she could see the aquarium and counted slowly before standing."
+  },
+  {
+    "id": "rec-family-009",
+    "residentId": "setsuko-ito",
+    "type": "family_memory",
+    "occurredAt": "2026-06-22T09:00:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Mai Ito"
+    },
+    "body": "Aunt Setsuko kept goldfish for years and still calms when she can watch fish move slowly. She prefers people to count before helping her stand."
+  },
+  {
+    "id": "rec-incident-009",
+    "residentId": "setsuko-ito",
+    "type": "incident_report",
+    "occurredAt": "2026-07-03T13:20:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Mori"
+    },
+    "body": "Post-lunch walk continued past the aquarium bench; resident stopped and said she needed to rest. Staff shortened the route and she completed the return calmly."
+  },
+  {
+    "id": "rec-soap-013",
+    "residentId": "hiroshi-kondo",
+    "type": "soap_note",
+    "occurredAt": "2026-06-25T18:30:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Ito"
+    },
+    "body": "Resident looked for his prayer beads before dinner and became quiet when they were not in the drawer. Ate better after staff found the beads in his jacket pocket.",
+    "legacyNoteId": "note-013"
+  },
+  {
+    "id": "rec-obs-010",
+    "residentId": "hiroshi-kondo",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-28T09:50:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Tanaka"
+    },
+    "body": "Resident listened to the temple bell recording and tapped the beads slowly. He answered yes-or-no questions more reliably than open questions during morning care."
+  },
+  {
+    "id": "rec-med-011",
+    "residentId": "hiroshi-kondo",
+    "type": "medication_record",
+    "occurredAt": "2026-07-01T18:00:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Ito"
+    },
+    "body": "Evening medication accepted after staff checked that prayer beads were in his left pocket and used yes-or-no prompts."
+  },
+  {
+    "id": "rec-family-010",
+    "residentId": "hiroshi-kondo",
+    "type": "family_memory",
+    "occurredAt": "2026-06-23T14:15:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Noriko Kondo"
+    },
+    "body": "My uncle visited the temple every week and carried prayer beads in his jacket. A bell sound or quiet counting with the beads helps him prepare for meals."
+  },
+  {
+    "id": "rec-incident-010",
+    "residentId": "hiroshi-kondo",
+    "type": "incident_report",
+    "occurredAt": "2026-07-03T18:10:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Tanaka"
+    },
+    "body": "Dinner tray arrived before prayer beads were located; resident pushed the tray away and looked down. Meal resumed after staff found the beads and restarted with yes-or-no prompts."
   }
 ]

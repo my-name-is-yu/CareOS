@@ -1,0 +1,149 @@
+{
+  "residentId": "emiko-watanabe",
+  "version": 1,
+  "approvedBy": "seed-migration",
+  "approvedAt": "2026-07-05T00:00:00Z",
+  "personSummary": {
+    "value": "Former home cook who responds warmly to the nickname Emi-san, old enka songs, warm soup, and a calm mealtime pace. Intake improves when food is warm and staff sit nearby without hurrying. Cold soup and late trays can lead to refusal or turning away. Warm water and nickname use support evening medication acceptance.",
+    "citations": [
+      {
+        "recordId": "rec-family-005",
+        "quote": "call her Emi-san"
+      },
+      {
+        "recordId": "rec-soap-008",
+        "quote": "accepted more when the bowl was warmed"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "recentChanges": {
+    "value": [
+      {
+        "description": "Recent lunch notes show cold soup reducing intake until the bowl is warmed.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-incident-005",
+            "quote": "soup cooled; resident refused several bites"
+          }
+        ]
+      },
+      {
+        "description": "Nickname use and warm water supported medication acceptance.",
+        "direction": "new",
+        "citations": [
+          {
+            "recordId": "rec-med-006",
+            "quote": "used her preferred nickname before explaining the dose"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-008",
+        "quote": "without hurrying"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "calmingApproaches": {
+    "value": [
+      "Use the nickname Emi-san before giving meal or medication instructions.",
+      "Check that soup and drinks are warm before encouraging intake.",
+      "Play a familiar enka song during afternoon tea or slow transitions."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-obs-005",
+        "quote": "hummed along to an old enka song"
+      },
+      {
+        "recordId": "rec-med-006",
+        "quote": "offered warm water"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "knownTriggers": {
+    "value": [
+      "Cold soup or delayed meal trays.",
+      "Being hurried during lunch.",
+      "Medication explanations that start without her preferred nickname."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-family-005",
+        "quote": "always disliked cold soup"
+      },
+      {
+        "recordId": "rec-soap-008",
+        "quote": "staff sat beside her without hurrying"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "careRecommendations": {
+    "value": [
+      {
+        "situation": "Lunch tray is delayed or soup has cooled",
+        "approach": "Replace or warm the soup before prompting additional bites.",
+        "citations": [
+          {
+            "recordId": "rec-incident-005",
+            "quote": "replaced the soup with a warmer bowl and intake improved"
+          }
+        ]
+      },
+      {
+        "situation": "Evening medication explanation",
+        "approach": "Start with Emi-san, offer warm water, then explain one dose step calmly.",
+        "citations": [
+          {
+            "recordId": "rec-med-006",
+            "quote": "accepted after staff offered warm water"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-family-005",
+        "quote": "sang enka while cooking"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "handoffBrief": {
+    "value": "Emiko Watanabe needs warm food, a slow mealtime pace, and the nickname Emi-san; cold soup or late trays can reduce intake, while enka songs and warm water help transitions.",
+    "citations": [
+      {
+        "recordId": "rec-incident-005",
+        "quote": "intake improved"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "trendFlags": {
+    "value": [
+      {
+        "claim": "Watch lunch intake on days when trays are delayed or soup cools before serving.",
+        "severity": "watch",
+        "citations": [
+          {
+            "recordId": "rec-incident-005",
+            "quote": "Lunch tray arrived late"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-008",
+        "quote": "pushed away cold soup"
+      }
+    ],
+    "updatedInVersion": 1
+  }
+}

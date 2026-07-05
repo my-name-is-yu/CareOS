@@ -1,0 +1,148 @@
+{
+  "residentId": "haruko-tanaka",
+  "version": 1,
+  "approvedBy": "seed-migration",
+  "approvedAt": "2026-07-05T00:00:00Z",
+  "personSummary": {
+    "value": "Former home sewist who feels most settled when her red cardigan is visible and morning care is unhurried. Responds well to folding towels, one-step tasks, lavender scent, and quiet explanations before medication. Family says sewing-table routines and clean towels were familiar daily anchors. Recent morning care notes show distress when the cardigan is missing or care is rushed.",
+    "citations": [
+      {
+        "recordId": "rec-family-003",
+        "quote": "red cardigan both help her feel ready for the day"
+      },
+      {
+        "recordId": "rec-obs-003",
+        "quote": "folded towels with staff after lunch"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "recentChanges": {
+    "value": [
+      {
+        "description": "Morning uneasiness is linked to the red cardigan being out of sight.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-soap-006",
+            "quote": "became uneasy when it was not on the chair"
+          }
+        ]
+      },
+      {
+        "description": "Rushed morning care recently led to tearfulness and repeated searching for the cardigan.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-incident-003",
+            "quote": "resident became tearful and asked twice where her cardigan was"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-003",
+        "quote": "restarted care slowly"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "calmingApproaches": {
+    "value": [
+      "Place the red cardigan where she can see it before morning care.",
+      "Offer a simple towel-folding task after lunch or during transitions.",
+      "Use lavender hand cream and explain each step in a quiet voice."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-med-004",
+        "quote": "explained each step in a quiet voice"
+      },
+      {
+        "recordId": "rec-obs-003",
+        "quote": "lavender hand cream was offered"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "knownTriggers": {
+    "value": [
+      "Red cardigan missing from the chair or bed during morning care.",
+      "Rushed room activity nearby before she understands the plan."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-006",
+        "quote": "when it was not on the chair"
+      },
+      {
+        "recordId": "rec-incident-003",
+        "quote": "Morning care was rushed"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "careRecommendations": {
+    "value": [
+      {
+        "situation": "Starting morning care",
+        "approach": "Find the red cardigan first, confirm the plan, and begin with one slow step.",
+        "citations": [
+          {
+            "recordId": "rec-incident-003",
+            "quote": "found the cardigan, and restarted care slowly"
+          }
+        ]
+      },
+      {
+        "situation": "Post-lunch transition",
+        "approach": "Invite her to fold towels with staff and offer lavender hand cream afterward.",
+        "citations": [
+          {
+            "recordId": "rec-obs-003",
+            "quote": "folded towels with staff after lunch"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-family-003",
+        "quote": "folding clean towels before tea"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "handoffBrief": {
+    "value": "Haruko Tanaka settles best when her red cardigan is visible, care starts slowly, and staff offer towel-folding or lavender cues; watch morning distress if the cardigan is missing or nearby activity feels rushed.",
+    "citations": [
+      {
+        "recordId": "rec-soap-006",
+        "quote": "confirmed the morning plan"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "trendFlags": {
+    "value": [
+      {
+        "claim": "Watch whether cardigan-related distress appears only in the morning or during other care transitions.",
+        "severity": "watch",
+        "citations": [
+          {
+            "recordId": "rec-incident-003",
+            "quote": "asked twice where her cardigan was"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-006",
+        "quote": "became uneasy"
+      }
+    ],
+    "updatedInVersion": 1
+  }
+}

@@ -14,5 +14,69 @@
     "room": "B-203",
     "timezone": "Asia/Tokyo",
     "language": "ja"
+  },
+  {
+    "id": "haruko-tanaka",
+    "name": "Haruko Tanaka",
+    "age": 88,
+    "room": "A-107",
+    "timezone": "Asia/Tokyo",
+    "language": "ja"
+  },
+  {
+    "id": "masao-nakamura",
+    "name": "Masao Nakamura",
+    "age": 82,
+    "room": "A-112",
+    "timezone": "Asia/Tokyo",
+    "language": "ja"
+  },
+  {
+    "id": "emiko-watanabe",
+    "name": "Emiko Watanabe",
+    "age": 91,
+    "room": "B-214",
+    "timezone": "Asia/Tokyo",
+    "language": "ja"
+  },
+  {
+    "id": "shigeru-kobayashi",
+    "name": "Shigeru Kobayashi",
+    "age": 76,
+    "room": "B-221",
+    "timezone": "Asia/Tokyo",
+    "language": "ja"
+  },
+  {
+    "id": "yumi-takahashi",
+    "name": "Yumi Takahashi",
+    "age": 86,
+    "room": "C-302",
+    "timezone": "Asia/Tokyo",
+    "language": "ja"
+  },
+  {
+    "id": "taro-yamamoto",
+    "name": "Taro Yamamoto",
+    "age": 80,
+    "room": "C-318",
+    "timezone": "Asia/Tokyo",
+    "language": "ja"
+  },
+  {
+    "id": "setsuko-ito",
+    "name": "Setsuko Ito",
+    "age": 89,
+    "room": "D-405",
+    "timezone": "Asia/Tokyo",
+    "language": "ja"
+  },
+  {
+    "id": "hiroshi-kondo",
+    "name": "Hiroshi Kondo",
+    "age": 83,
+    "room": "D-417",
+    "timezone": "Asia/Tokyo",
+    "language": "ja"
   }
 ]

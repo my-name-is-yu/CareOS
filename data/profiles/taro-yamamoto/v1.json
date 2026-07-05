@@ -1,0 +1,148 @@
+{
+  "residentId": "taro-yamamoto",
+  "version": 1,
+  "approvedBy": "seed-migration",
+  "approvedAt": "2026-07-05T00:00:00Z",
+  "personSummary": {
+    "value": "Former stationery shop owner who values the morning newspaper before breakfast and likes reading headlines aloud. Sorting playing cards or papers can keep him engaged, but he dislikes having materials cleared before he says he is finished. Breakfast and morning medication go better when the newspaper routine is preserved.",
+    "citations": [
+      {
+        "recordId": "rec-family-008",
+        "quote": "ran a small stationery shop"
+      },
+      {
+        "recordId": "rec-soap-011",
+        "quote": "reading the headlines aloud with staff"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "recentChanges": {
+    "value": [
+      {
+        "description": "Missing newspaper at breakfast recently led to tray refusal until the paper was returned.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-incident-008",
+            "quote": "Newspaper was missing from the breakfast table"
+          }
+        ]
+      },
+      {
+        "description": "Reviewing headlines supported morning medication acceptance.",
+        "direction": "new",
+        "citations": [
+          {
+            "recordId": "rec-med-009",
+            "quote": "after newspaper headlines were reviewed"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-011",
+        "quote": "declined breakfast until it was placed on the table"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "calmingApproaches": {
+    "value": [
+      "Place the newspaper on the breakfast table before bringing the tray.",
+      "Read a few headlines aloud with him before morning medication.",
+      "Let him finish sorting cards or papers before clearing the table."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-med-009",
+        "quote": "newspaper headlines were reviewed"
+      },
+      {
+        "recordId": "rec-obs-008",
+        "quote": "organized playing cards by suit"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "knownTriggers": {
+    "value": [
+      "Breakfast tray arriving before the newspaper.",
+      "Papers or cards being moved before he says he is finished."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-008",
+        "quote": "refused the first tray"
+      },
+      {
+        "recordId": "rec-family-008",
+        "quote": "dislikes having papers moved"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "careRecommendations": {
+    "value": [
+      {
+        "situation": "Breakfast setup",
+        "approach": "Put the newspaper in place first, read one or two headlines, then serve the tray.",
+        "citations": [
+          {
+            "recordId": "rec-incident-008",
+            "quote": "Meal restarted smoothly once the paper was returned"
+          }
+        ]
+      },
+      {
+        "situation": "Clearing activity materials",
+        "approach": "Ask whether he is done before moving papers, cards, or sorting materials.",
+        "citations": [
+          {
+            "recordId": "rec-obs-008",
+            "quote": "impatient when the table was cleared before he finished sorting"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-family-008",
+        "quote": "reading newspaper headlines aloud before breakfast"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "handoffBrief": {
+    "value": "Taro Yamamoto needs the newspaper before breakfast and responds well to reading headlines aloud; avoid moving papers or cards before he confirms he is finished.",
+    "citations": [
+      {
+        "recordId": "rec-soap-011",
+        "quote": "Ate well after reading the headlines aloud"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "trendFlags": {
+    "value": [
+      {
+        "claim": "Watch breakfast refusal when the newspaper routine is missed.",
+        "severity": "watch",
+        "citations": [
+          {
+            "recordId": "rec-incident-008",
+            "quote": "asked staff to find the headlines"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-011",
+        "quote": "declined breakfast"
+      }
+    ],
+    "updatedInVersion": 1
+  }
+}

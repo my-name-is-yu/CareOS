@@ -1,0 +1,148 @@
+{
+  "residentId": "setsuko-ito",
+  "version": 1,
+  "approvedBy": "seed-migration",
+  "approvedAt": "2026-07-05T00:00:00Z",
+  "personSummary": {
+    "value": "Former goldfish keeper who calms when she can see the aquarium and prefers slow counting before standing or transfers. Post-lunch hallway walks may tire her, especially if the route continues past the aquarium bench. She follows cues best when staff count slowly from one to three and keep the aquarium in view during midday care.",
+    "citations": [
+      {
+        "recordId": "rec-family-009",
+        "quote": "kept goldfish for years"
+      },
+      {
+        "recordId": "rec-obs-009",
+        "quote": "watched the aquarium"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "recentChanges": {
+    "value": [
+      {
+        "description": "Post-lunch walks have recently required rest near the aquarium bench.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-soap-012",
+            "quote": "asked to sit near the aquarium"
+          }
+        ]
+      },
+      {
+        "description": "Aquarium view and slow counting supported midday medication acceptance.",
+        "direction": "new",
+        "citations": [
+          {
+            "recordId": "rec-med-010",
+            "quote": "counted slowly before standing"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-009",
+        "quote": "shortened the route"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "calmingApproaches": {
+    "value": [
+      "Pause near the aquarium bench after lunch before returning to the room.",
+      "Count slowly from one to three before standing or transfer cues.",
+      "Position the chair so she can see the aquarium during midday care."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-med-010",
+        "quote": "moved the chair so she could see the aquarium"
+      },
+      {
+        "recordId": "rec-obs-009",
+        "quote": "counted slowly from one to three"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "knownTriggers": {
+    "value": [
+      "Continuing the post-lunch walk past the aquarium bench without a rest.",
+      "Standing or transfer help without a slow count."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-009",
+        "quote": "walk continued past the aquarium bench"
+      },
+      {
+        "recordId": "rec-family-009",
+        "quote": "prefers people to count before helping her stand"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "careRecommendations": {
+    "value": [
+      {
+        "situation": "Post-lunch hallway walk",
+        "approach": "Plan a short rest at the aquarium bench and shorten the route if she asks to sit.",
+        "citations": [
+          {
+            "recordId": "rec-incident-009",
+            "quote": "she needed to rest"
+          }
+        ]
+      },
+      {
+        "situation": "Midday medication or transfer",
+        "approach": "Keep the aquarium in view and count slowly before asking her to stand.",
+        "citations": [
+          {
+            "recordId": "rec-med-010",
+            "quote": "accepted after staff moved the chair"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-family-009",
+        "quote": "calms when she can watch fish move slowly"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "handoffBrief": {
+    "value": "Setsuko Ito calms near the aquarium and needs slow counting before standing; shorten post-lunch walks if she asks to rest near the fish.",
+    "citations": [
+      {
+        "recordId": "rec-soap-012",
+        "quote": "Breathing appeared settled"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "trendFlags": {
+    "value": [
+      {
+        "claim": "Watch post-lunch fatigue if the hallway route passes the aquarium bench without a pause.",
+        "severity": "watch",
+        "citations": [
+          {
+            "recordId": "rec-incident-009",
+            "quote": "stopped and said she needed to rest"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-012",
+        "quote": "became tired during the hallway walk"
+      }
+    ],
+    "updatedInVersion": 1
+  }
+}

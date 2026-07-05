@@ -1,0 +1,148 @@
+{
+  "residentId": "hiroshi-kondo",
+  "version": 1,
+  "approvedBy": "seed-migration",
+  "approvedAt": "2026-07-05T00:00:00Z",
+  "personSummary": {
+    "value": "Former weekly temple visitor who feels prepared for meals when his prayer beads are located, usually in his jacket or left pocket. Temple bell recordings, quiet counting with beads, and yes-or-no prompts support care. Dinner or medication can stall if trays arrive before the beads are found. Open questions are less reliable than simple yes-or-no choices.",
+    "citations": [
+      {
+        "recordId": "rec-family-010",
+        "quote": "visited the temple every week"
+      },
+      {
+        "recordId": "rec-obs-010",
+        "quote": "tapped the beads slowly"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "recentChanges": {
+    "value": [
+      {
+        "description": "Dinner setup before locating prayer beads recently led to pushing the tray away.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-incident-010",
+            "quote": "pushed the tray away"
+          }
+        ]
+      },
+      {
+        "description": "Prayer bead check and yes-or-no prompts supported evening medication acceptance.",
+        "direction": "new",
+        "citations": [
+          {
+            "recordId": "rec-med-011",
+            "quote": "used yes-or-no prompts"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-013",
+        "quote": "not in the drawer"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "calmingApproaches": {
+    "value": [
+      "Check that prayer beads are in his left pocket before dinner or medication.",
+      "Use yes-or-no prompts instead of open questions during morning or evening care.",
+      "Play a short temple bell recording or count quietly with the beads before meals."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-med-011",
+        "quote": "prayer beads were in his left pocket"
+      },
+      {
+        "recordId": "rec-obs-010",
+        "quote": "answered yes-or-no questions more reliably"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "knownTriggers": {
+    "value": [
+      "Dinner tray arriving before prayer beads are located.",
+      "Open-ended questions during care when he is already quiet or looking down."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-010",
+        "quote": "Dinner tray arrived before prayer beads were located"
+      },
+      {
+        "recordId": "rec-obs-010",
+        "quote": "more reliably than open questions"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "careRecommendations": {
+    "value": [
+      {
+        "situation": "Dinner tray is ready",
+        "approach": "Locate the prayer beads first, place them in his left pocket or hand, then serve the tray.",
+        "citations": [
+          {
+            "recordId": "rec-incident-010",
+            "quote": "Meal resumed after staff found the beads"
+          }
+        ]
+      },
+      {
+        "situation": "Medication or morning care questions",
+        "approach": "Use yes-or-no prompts and a quiet tone, with the beads available.",
+        "citations": [
+          {
+            "recordId": "rec-med-011",
+            "quote": "Evening medication accepted"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-family-010",
+        "quote": "bell sound or quiet counting with the beads"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "handoffBrief": {
+    "value": "Hiroshi Kondo needs prayer beads located before dinner or medication, responds to temple bell or quiet counting cues, and answers yes-or-no prompts more reliably than open questions.",
+    "citations": [
+      {
+        "recordId": "rec-soap-013",
+        "quote": "Ate better after staff found the beads"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "trendFlags": {
+    "value": [
+      {
+        "claim": "Watch dinner refusal when the prayer bead routine is skipped.",
+        "severity": "watch",
+        "citations": [
+          {
+            "recordId": "rec-incident-010",
+            "quote": "looked down"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-010",
+        "quote": "pushed the tray away"
+      }
+    ],
+    "updatedInVersion": 1
+  }
+}

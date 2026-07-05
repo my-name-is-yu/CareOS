@@ -14,9 +14,11 @@ async function readJson<T>(filePath: string): Promise<T> {
 }
 
 describe("seed data validity", () => {
-  it("residents.json holds an array of resident identities including aiko-mori and kenji-sato", async () => {
+  it("residents.json holds ten resident identities including aiko-mori and kenji-sato", async () => {
     const residents = await readJson<Array<Record<string, unknown>>>(path.join(seedDataRoot(), "residents.json"));
     expect(Array.isArray(residents)).toBe(true);
+    expect(residents).toHaveLength(10);
+    expect(new Set(residents.map((resident) => resident.id))).toHaveLength(10);
 
     const aikoMori = residents.find((resident) => resident.id === "aiko-mori");
     expect(aikoMori).toEqual({
@@ -48,12 +50,12 @@ describe("seed data validity", () => {
     }
   });
 
-  it("records.json includes both aiko-mori and kenji-sato records", async () => {
+  it("records.json includes care records for every resident", async () => {
+    const residents = await readJson<Array<{ id: string }>>(path.join(seedDataRoot(), "residents.json"));
     const records = await readJson<Array<{ residentId: string }>>(path.join(seedDataRoot(), "records.json"));
-    const aikoMoriRecords = records.filter((record) => record.residentId === "aiko-mori");
-    const kenjiSatoRecords = records.filter((record) => record.residentId === "kenji-sato");
-    expect(aikoMoriRecords.length).toBeGreaterThan(0);
-    expect(kenjiSatoRecords.length).toBeGreaterThanOrEqual(4);
+    for (const resident of residents) {
+      expect(records.filter((record) => record.residentId === resident.id).length).toBeGreaterThan(0);
+    }
   });
 
   it("proposals.json validates against ProfileUpdateProposalSchema", async () => {
@@ -77,5 +79,16 @@ describe("seed data validity", () => {
     expect(parsed.version).toBe(1);
     expect(parsed.approvedBy).toBe("seed-migration");
     expect(parsed.trendFlags.value.some((flag) => flag.severity === "watch")).toBe(true);
+  });
+
+  it("each resident has a valid v1 Living Care Profile", async () => {
+    const residents = await readJson<Array<{ id: string }>>(path.join(seedDataRoot(), "residents.json"));
+    for (const resident of residents) {
+      const profile = await readJson<unknown>(path.join(seedDataRoot(), "profiles", resident.id, "v1.json"));
+      const parsed = LivingCareProfileSchema.parse(profile);
+      expect(parsed.residentId).toBe(resident.id);
+      expect(parsed.version).toBe(1);
+      expect(parsed.approvedBy).toBe("seed-migration");
+    }
   });
 });

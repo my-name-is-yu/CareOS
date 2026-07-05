@@ -1,0 +1,149 @@
+{
+  "residentId": "yumi-takahashi",
+  "version": 1,
+  "approvedBy": "seed-migration",
+  "approvedAt": "2026-07-05T00:00:00Z",
+  "personSummary": {
+    "value": "Enjoys flower arranging and responds especially well to soft blue objects, her blue shawl, gentle praise, and short lullabies. Nighttime routines should keep the shawl within reach before lights-out. She may call for her older sister when unsettled at night. A gentle countdown helps evening medication and other stepwise care.",
+    "citations": [
+      {
+        "recordId": "rec-family-007",
+        "quote": "blue fabrics comforting at night"
+      },
+      {
+        "recordId": "rec-obs-007",
+        "quote": "soft blue flowers first"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "recentChanges": {
+    "value": [
+      {
+        "description": "Lights-out without the blue shawl nearby recently led to calling out and gripping the bed rail.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-incident-007",
+            "quote": "blue shawl was within reach"
+          }
+        ]
+      },
+      {
+        "description": "Blue shawl placement and a gentle countdown supported evening medication acceptance.",
+        "direction": "new",
+        "citations": [
+          {
+            "recordId": "rec-med-008",
+            "quote": "used a gentle countdown before each step"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-010",
+        "quote": "played a short lullaby"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "calmingApproaches": {
+    "value": [
+      "Place the blue shawl over her shoulders before evening care.",
+      "Use a gentle countdown before each medication or transfer step.",
+      "Offer blue flowers first during flower arranging and praise the color choice."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-med-008",
+        "quote": "placed the blue shawl over her shoulders"
+      },
+      {
+        "recordId": "rec-obs-007",
+        "quote": "praised the color choice"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "knownTriggers": {
+    "value": [
+      "Lights-out before the blue shawl is within reach.",
+      "Bedtime without the familiar lullaby cue.",
+      "Rushing nighttime care while she is calling for her sister."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-007",
+        "quote": "Room lights were turned off before the blue shawl was within reach"
+      },
+      {
+        "recordId": "rec-soap-010",
+        "quote": "called out for her older sister"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "careRecommendations": {
+    "value": [
+      {
+        "situation": "Preparing for lights-out",
+        "approach": "Confirm the blue shawl is within reach, play a short lullaby, then dim the room.",
+        "citations": [
+          {
+            "recordId": "rec-incident-007",
+            "quote": "Staff restored the shawl routine and she settled"
+          }
+        ]
+      },
+      {
+        "situation": "Evening medication",
+        "approach": "Use the blue shawl and a gentle countdown before each step.",
+        "citations": [
+          {
+            "recordId": "rec-med-008",
+            "quote": "Evening medication accepted"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-family-007",
+        "quote": "short lullaby was part of their bedtime routine"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "handoffBrief": {
+    "value": "Yumi Takahashi relies on the blue shawl, soft blue visual cues, gentle praise, and a bedtime lullaby; do not turn lights out before the shawl is in reach.",
+    "citations": [
+      {
+        "recordId": "rec-incident-007",
+        "quote": "she settled"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "trendFlags": {
+    "value": [
+      {
+        "claim": "Watch nighttime calling out when the shawl routine is skipped or delayed.",
+        "severity": "watch",
+        "citations": [
+          {
+            "recordId": "rec-incident-007",
+            "quote": "called out and gripped the bed rail"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-010",
+        "quote": "held the bed rail tightly"
+      }
+    ],
+    "updatedInVersion": 1
+  }
+}

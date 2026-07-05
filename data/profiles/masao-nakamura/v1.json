@@ -1,0 +1,149 @@
+{
+  "residentId": "masao-nakamura",
+  "version": 1,
+  "approvedBy": "seed-migration",
+  "approvedAt": "2026-07-05T00:00:00Z",
+  "personSummary": {
+    "value": "Longtime vegetable gardener who feels useful when checking plants, carrying a small watering can, or confirming the garden gate. Short instructions work better than group prompts. Rainy evenings and blocked garden-view walks can increase pacing near exits. Morning medication is easier after he checks the balcony plants.",
+    "citations": [
+      {
+        "recordId": "rec-family-004",
+        "quote": "grew vegetables for decades"
+      },
+      {
+        "recordId": "rec-obs-004",
+        "quote": "watered the potted basil"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "recentChanges": {
+    "value": [
+      {
+        "description": "Rain and missed garden-view routines have recently led to pacing near windows or exits.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-incident-004",
+            "quote": "paced by the exit"
+          }
+        ]
+      },
+      {
+        "description": "Balcony plant checks supported smoother morning medication acceptance.",
+        "direction": "new",
+        "citations": [
+          {
+            "recordId": "rec-med-005",
+            "quote": "let him check the small balcony plants first"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-007",
+        "quote": "rain kept him indoors"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "calmingApproaches": {
+    "value": [
+      "Offer a supervised plant check or small watering task before breakfast care.",
+      "Move him to the lounge window when rain prevents the usual garden walk.",
+      "Use short instructions and avoid broad group prompts."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-obs-004",
+        "quote": "Short instructions worked better"
+      },
+      {
+        "recordId": "rec-incident-004",
+        "quote": "moved him to the lounge window and he settled"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "knownTriggers": {
+    "value": [
+      "Rain blocking the usual garden view or walk.",
+      "Unanswered concern about whether the garden gate is locked.",
+      "Group activity prompts that do not give him a concrete task."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-004",
+        "quote": "asked if the gate was locked"
+      },
+      {
+        "recordId": "rec-soap-007",
+        "quote": "when the rain kept him indoors"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "careRecommendations": {
+    "value": [
+      {
+        "situation": "Rain prevents garden access",
+        "approach": "Show him the garden from the lounge window and verbally confirm the gate is secure.",
+        "citations": [
+          {
+            "recordId": "rec-soap-007",
+            "quote": "showed him the garden from the lounge"
+          }
+        ]
+      },
+      {
+        "situation": "Morning medication or breakfast transition",
+        "approach": "Let him check the balcony plants first, then give the next instruction briefly.",
+        "citations": [
+          {
+            "recordId": "rec-med-005",
+            "quote": "accepted after breakfast once staff let him check"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-family-004",
+        "quote": "inspect a plant or carry a small watering can"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "handoffBrief": {
+    "value": "Masao Nakamura calms with concrete gardening tasks and short instructions; if rain blocks the garden walk, use the lounge window and confirm the gate rather than debating the concern.",
+    "citations": [
+      {
+        "recordId": "rec-incident-004",
+        "quote": "Staff moved him to the lounge window and he settled"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "trendFlags": {
+    "value": [
+      {
+        "claim": "Watch for exit pacing on rainy evenings when the garden-view routine is interrupted.",
+        "severity": "watch",
+        "citations": [
+          {
+            "recordId": "rec-incident-004",
+            "quote": "Heavy rain at dinner time"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-004",
+        "quote": "paced by the exit"
+      }
+    ],
+    "updatedInVersion": 1
+  }
+}

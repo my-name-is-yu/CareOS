@@ -1,0 +1,148 @@
+{
+  "residentId": "shigeru-kobayashi",
+  "version": 1,
+  "approvedBy": "seed-migration",
+  "approvedAt": "2026-07-05T00:00:00Z",
+  "personSummary": {
+    "value": "Former carpenter who tends to wake early and looks for purposeful workshop-like tasks. Safe polishing, sorting screws and washers, and simple step-by-step prompts help him feel respected. He becomes distracted or upset when multiple people speak at once. Framing morning medication as the first step before a familiar handrail polishing routine worked well.",
+    "citations": [
+      {
+        "recordId": "rec-family-006",
+        "quote": "Father was a carpenter"
+      },
+      {
+        "recordId": "rec-obs-006",
+        "quote": "sorted screws and washers"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "recentChanges": {
+    "value": [
+      {
+        "description": "Early waking with workshop questions has been calmed by safe polishing tasks.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-soap-009",
+            "quote": "small cloth to polish the wooden handrail"
+          }
+        ]
+      },
+      {
+        "description": "Conflicting simultaneous instructions led to raised voice and chair movement.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-incident-006",
+            "quote": "Two staff members gave different morning instructions"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-006",
+        "quote": "one staff member repeated a single task"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "calmingApproaches": {
+    "value": [
+      "Offer a safe object to inspect or polish during early morning restlessness.",
+      "Give one step at a time, with only one staff member speaking.",
+      "Use sorting tasks with the activity box when he needs focused engagement."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-family-006",
+        "quote": "safe object to inspect or polish"
+      },
+      {
+        "recordId": "rec-obs-006",
+        "quote": "simple step-by-step prompts"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "knownTriggers": {
+    "value": [
+      "Two staff members speaking or giving different instructions at once.",
+      "Early morning uncertainty about whether his work has started."
+    ],
+    "citations": [
+      {
+        "recordId": "rec-incident-006",
+        "quote": "gave different morning instructions at the same time"
+      },
+      {
+        "recordId": "rec-soap-009",
+        "quote": "asked whether the workshop had opened"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "careRecommendations": {
+    "value": [
+      {
+        "situation": "Early morning waking before routine begins",
+        "approach": "Give him a cloth and a safe handrail-polishing task before moving into care.",
+        "citations": [
+          {
+            "recordId": "rec-soap-009",
+            "quote": "became calmer after staff gave him a small cloth"
+          }
+        ]
+      },
+      {
+        "situation": "Multiple staff are present during care",
+        "approach": "Designate one speaker and repeat a single task before touching the chair or table.",
+        "citations": [
+          {
+            "recordId": "rec-incident-006",
+            "quote": "one staff member repeated a single task"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-med-007",
+        "quote": "first step before his handrail polishing routine"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "handoffBrief": {
+    "value": "Shigeru Kobayashi does best with purposeful carpenter-style tasks, one speaker, and step-by-step prompts; avoid overlapping instructions, especially in the early morning.",
+    "citations": [
+      {
+        "recordId": "rec-incident-006",
+        "quote": "pushed the chair back"
+      }
+    ],
+    "updatedInVersion": 1
+  },
+  "trendFlags": {
+    "value": [
+      {
+        "claim": "Watch early-morning agitation when more than one staff member gives instructions.",
+        "severity": "watch",
+        "citations": [
+          {
+            "recordId": "rec-incident-006",
+            "quote": "raised his voice"
+          }
+        ]
+      }
+    ],
+    "citations": [
+      {
+        "recordId": "rec-soap-009",
+        "quote": "woke before sunrise"
+      }
+    ],
+    "updatedInVersion": 1
+  }
+}
