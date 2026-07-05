@@ -56,14 +56,12 @@ export default function HomePage() {
         const payload = (await response.json()) as CompilePayload;
         if (modeName === "off") {
           setOffPayload(payload);
-          setMode("off");
         } else {
           setOnPayload(payload);
         }
       } catch {
         if (modeName === "off") {
           setOffPayload({ ...fixtureOff, cached: true });
-          setMode("off");
         } else {
           setOnPayload({ ...fixtureOn, cached: true });
         }

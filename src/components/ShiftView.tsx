@@ -29,22 +29,22 @@ export function ShiftView({ payload, loading, mode, residentLabel }: Props) {
         <article className="panel">
           <h3>Watch items</h3>
           <ul>
-            {result?.handoff_brief.watch_items.map((item) => <li key={item}>{item}</li>) ?? <li>Waiting</li>}
+            {result?.handoff_brief.watch_items.map((item, i) => <li key={`${i}-${item}`}>{item}</li>) ?? <li>Waiting</li>}
           </ul>
         </article>
         <article className="panel">
           <h3>Context the note missed</h3>
           <ul>
             {result?.handoff_brief.context_the_note_missed.length
-              ? result.handoff_brief.context_the_note_missed.map((item) => <li key={item}>{item}</li>)
+              ? result.handoff_brief.context_the_note_missed.map((item, i) => <li key={`${i}-${item}`}>{item}</li>)
               : <li>No extra context surfaced.</li>}
           </ul>
         </article>
         <article className="panel wide">
           <h3>Observations</h3>
           <div className="stack">
-            {result?.observations.map((obs) => (
-              <div key={obs.note_id} className="observation">
+            {result?.observations.map((obs, i) => (
+              <div key={`${obs.note_id}-${i}`} className="observation">
                 <span>{obs.category}</span>
                 <p>{obs.text}</p>
               </div>
@@ -70,7 +70,7 @@ export function ShiftView({ payload, loading, mode, residentLabel }: Props) {
         <article className="panel wide">
           <h3>Drift flags</h3>
           <div className="stack">
-            {result?.drift_flags.length ? result.drift_flags.map((flag) => <DriftFlag key={flag.claim} flag={flag} />) : <p>No drift flags in this mode.</p>}
+            {result?.drift_flags.length ? result.drift_flags.map((flag, i) => <DriftFlag key={`${flag.claim}-${i}`} flag={flag} />) : <p>No drift flags in this mode.</p>}
           </div>
         </article>
       </div>
