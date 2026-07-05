@@ -110,25 +110,52 @@ describe("lint warnings", () => {
       "Review language for clinical, diagnostic, or prescribing claims.",
     ]);
   });
+
+  it.each([
+    "Consider a diagnosis of vascular issues.",
+    "Prescribing a new plan for the resident.",
+    "Increase the dosage per the chart.",
+    "Signs of underlying disease noted.",
+    "Symptoms consistent with parkinson's.",
+    "Behavior consistent with alzheimer's.",
+    "Notable progression of dementia this week.",
+  ])("warns on spec keyword: %s", (text) => {
+    expect(lintClinicalLanguage({ summary: text })).toEqual([
+      "Review language for clinical, diagnostic, or prescribing claims.",
+    ]);
+  });
+
+  it("does not warn on clean operational language", () => {
+    expect(lintClinicalLanguage({ summary: "Resident had a calm afternoon and ate well." })).toEqual([]);
+  });
 });
 
 describe("compile route helpers", () => {
-  it("assembles OFF and ON inputs with the expected context", () => {
-    const resident = {
-      name: "Default Resident",
-      age: 84,
-      room: "A-101",
-      baseline_traits: ["slow gait"],
-      timezone: "Asia/Tokyo",
-      language: "ja",
-    };
-    const history = [{ note_id: "note-001", date: "2026-07-01", shift: "day", author: "Yamada", text: "History" }];
+  const resident = {
+    name: "Default Resident",
+    age: 84,
+    room: "A-101",
+    baseline_traits: ["slow gait"],
+    timezone: "Asia/Tokyo",
+    language: "ja",
+  };
+  const history = [{ note_id: "note-001", date: "2026-07-01", shift: "day", author: "Yamada", text: "History" }];
+
+  it("assembles OFF input with the note only and empty context", () => {
     const off = JSON.parse(buildCompileInput({ note: "New note", mode: "off", resident, history }));
-    const on = JSON.parse(buildCompileInput({ note: "New note", mode: "on", resident, history }));
+    expect(off.current_note).toBe("New note");
     expect(off.context.resident).toBeNull();
     expect(off.context.history).toEqual([]);
+    expect(off.context.instruction).toContain("context_the_note_missed empty");
+    expect(off.context.instruction).toContain("note itself explicitly states a change");
+    expect(off.output_contract).toContain('note_id to "live"');
+  });
+
+  it("assembles ON input with resident and all history", () => {
+    const on = JSON.parse(buildCompileInput({ note: "New note", mode: "on", resident, history }));
     expect(on.context.resident).toEqual(resident);
     expect(on.context.history).toEqual(history);
+    expect(on.context.instruction).toContain("verbatim historical citations");
   });
 
   it("returns cached demo data when the key is missing", async () => {

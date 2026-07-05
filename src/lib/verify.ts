@@ -41,6 +41,6 @@ export function verifyCompileResult(
   return { result: { ...parsed, drift_flags }, verified: droppedFlags === 0 && droppedCitations === 0, droppedCitations, droppedFlags };
 }
 
-export function needsCorrectiveRerun(verification: { verified: boolean; droppedFlags: number; droppedCitations: number }): boolean {
-  return !verification.verified && (verification.droppedFlags > 0 || verification.droppedCitations > 0);
+export function needsCorrectiveRerun(verification: { droppedFlags: number; result: CompileResult }): boolean {
+  return verification.droppedFlags > 0 && verification.result.drift_flags.length === 0;
 }

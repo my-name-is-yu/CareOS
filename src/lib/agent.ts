@@ -20,7 +20,8 @@ export const CareCompiler = new Agent({
     "Never diagnose, prescribe, or claim clinical causality.",
     "Use only the supplied current note and, in context-on mode, supplied historical notes.",
     "Drift flags require verbatim historical citations with note_id and exact quote text.",
-    "If context is empty, return no drift_flags and keep context_the_note_missed empty.",
+    "If context is empty (context-off mode), keep context_the_note_missed empty; only emit a drift_flag if the current note itself explicitly states a change (e.g. worsening or improvement versus an earlier point), since there is no history to compare against.",
+    "Observations drawn from the current note must use note_id \"live\"; observations drawn from history must cite the real note_id.",
   ].join("\n"),
 });
 
@@ -37,7 +38,7 @@ export function assembleCompileInput(input: CompileInput): string {
           resident: null,
           history: [],
           instruction:
-            "Context is OFF. Use the current note only. Leave drift_flags empty and context_the_note_missed empty.",
+            "Context is OFF. Use the current note only. Leave context_the_note_missed empty. Only emit a drift_flag if the note itself explicitly states a change (e.g. \"gait worse than yesterday\"); otherwise leave drift_flags empty.",
         };
 
   return JSON.stringify(
@@ -46,7 +47,7 @@ export function assembleCompileInput(input: CompileInput): string {
       current_note: input.note,
       context,
       output_contract:
-        "Return CompileResult JSON with observations, drift_flags, and handoff_brief. Categories are gait, sleep, appetite, agitation, medication, social, other. Severity is watch or attention.",
+        'Return CompileResult JSON with observations, drift_flags, and handoff_brief. Categories are gait, sleep, appetite, agitation, medication, social, other. Severity is watch or attention. Every observation drawn from the current note must set note_id to "live"; observations drawn from history must use the real historical note_id.',
       extra_instruction: input.extraInstruction ?? null,
     },
     null,

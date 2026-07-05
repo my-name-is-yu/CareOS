@@ -15,7 +15,11 @@ export default [
         process: "readonly",
         window: "readonly",
         navigator: "readonly",
-        document: "readonly"
+        document: "readonly",
+        console: "readonly",
+        Buffer: "readonly",
+        Request: "readonly",
+        Response: "readonly"
       }
     },
     rules: {
