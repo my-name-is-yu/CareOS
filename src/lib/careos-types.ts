@@ -1,7 +1,7 @@
-import type { CompileEnvelope, CompileResult } from "./schema";
+import type { CompileEnvelope, CompileResult, CareRecord, RecordType } from "./schema";
 import type { HistoryNote, PatientMemory, Resident } from "./data";
 
-export type { Resident, HistoryNote, PatientMemory };
+export type { Resident, HistoryNote, PatientMemory, CareRecord, RecordType };
 
 export type NoteRequest = {
   note: string;

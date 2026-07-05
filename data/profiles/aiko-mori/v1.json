@@ -1,0 +1,107 @@
+{
+  "residentId": "aiko-mori",
+  "version": 1,
+  "approvedBy": "seed-migration",
+  "approvedAt": "2026-07-05T00:00:00Z",
+  "personSummary": {
+    "value": "Walks slowly but steadily with a walker during daytime routines. Usually accepts evening medication when a familiar nurse explains the sequence first. Often rests after lunch and prefers unhurried transitions. Prefers the room door partly closed during evening care. Responds well to warm tea after meals. Likes hearing that her daughter Mika was updated when family context is relevant. Daughter Mika is the primary family contact and usually visits on Sunday afternoons. Family reports that quiet music after dinner has helped with settling in the past.",
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "recentChanges": {
+    "value": [
+      {
+        "description": "Recent notes show slower gait after lunch and near hallway turns.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-soap-001",
+            "quote": "slower than baseline"
+          }
+        ]
+      },
+      {
+        "description": "Two recent evening notes include the same medication refusal phrase.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-soap-002",
+            "quote": "I do not want it tonight"
+          }
+        ]
+      },
+      {
+        "description": "Noise from the corridor was linked to a request for a quieter room.",
+        "direction": "changed",
+        "citations": [
+          {
+            "recordId": "rec-soap-003",
+            "quote": "Noise from the corridor"
+          }
+        ]
+      }
+    ],
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "calmingApproaches": {
+    "value": [
+      "Lower room noise, sit at eye level, and restart the explanation slowly.",
+      "Give a short break before re-offering medication with a familiar staff member when possible.",
+      "Confirm where the walker is before asking her to stand."
+    ],
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "knownTriggers": {
+    "value": [
+      "Corridor noise near the room can increase agitation.",
+      "Unfamiliar staff moving quickly during medication rounds can lead to refusal.",
+      "Unexpected walker repositioning can make transfers feel unsafe."
+    ],
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "careRecommendations": {
+    "value": [
+      {
+        "situation": "Medication round with unfamiliar staff or corridor noise present",
+        "approach": "Give a short break before re-offering medication with a familiar staff member when possible.",
+        "citations": []
+      },
+      {
+        "situation": "Evening agitation near the corridor",
+        "approach": "Lower room noise, sit at eye level, and restart the explanation slowly.",
+        "citations": []
+      }
+    ],
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "handoffBrief": {
+    "value": "Aiko Mori is steady with walker support but slower after lunch; watch for medication refusal tied to unfamiliar staff or corridor noise, and use calm, familiar-nurse re-approaches.",
+    "citations": [],
+    "updatedInVersion": 1
+  },
+  "trendFlags": {
+    "value": [
+      {
+        "claim": "Track whether gait slowness appears after lunch or also during morning care.",
+        "severity": "watch",
+        "citations": []
+      },
+      {
+        "claim": "Watch for repeated medication refusal when unfamiliar staff or corridor noise are present.",
+        "severity": "watch",
+        "citations": []
+      },
+      {
+        "claim": "Escalate only as an operational handoff concern; avoid diagnostic or prescribing language.",
+        "severity": "watch",
+        "citations": []
+      }
+    ],
+    "citations": [],
+    "updatedInVersion": 1
+  }
+}

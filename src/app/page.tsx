@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { NoteInput } from "@/src/components/NoteInput";
 import { RealtimeVoiceAgent } from "@/src/components/RealtimeVoiceAgent";
+import { RecordInput } from "@/src/components/RecordInput";
 import { ShiftView } from "@/src/components/ShiftView";
-import type { CompilePayload, PatientMemory, Resident } from "@/src/lib/careos-types";
+import type { CareRecord, CompilePayload, PatientMemory, Resident } from "@/src/lib/careos-types";
 
 const emptyMemory: PatientMemory = {
   baseline: [],
@@ -31,6 +32,16 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState<CompilePayload | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [recentRecords, setRecentRecords] = useState<CareRecord[]>([]);
+
+  const refreshRecords = useCallback(() => {
+    globalThis.fetch("/api/records")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { records?: CareRecord[] } | null) => {
+        if (data?.records) setRecentRecords(data.records.slice(0, 5));
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     globalThis.fetch("/api/resident")
@@ -40,7 +51,8 @@ export default function HomePage() {
         if (data?.memory) setMemory(data.memory);
       })
       .catch(() => {});
-  }, []);
+    refreshRecords();
+  }, [refreshRecords]);
 
   async function submit(note: { note: string }) {
     setLoading(true);
@@ -83,6 +95,24 @@ export default function HomePage() {
         <div className="left-rail">
           <RealtimeVoiceAgent />
           <NoteInput loading={loading} onSubmit={submit} />
+          <RecordInput onCreated={refreshRecords} />
+          <section className="panel">
+            <p className="eyebrow">Recent care records</p>
+            <div className="record-list">
+              {recentRecords.length === 0 ? (
+                <p className="muted-line">No care records yet.</p>
+              ) : (
+                recentRecords.map((record) => (
+                  <div className="record-list-item" key={record.id}>
+                    <span>
+                      {record.type.replace(/_/g, " ")} - {new Date(record.occurredAt).toLocaleString()}
+                    </span>
+                    <p>{record.body}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
         </div>
         <div className="main-column">
           <ShiftView loading={loading} payload={payload} resident={resident} memory={memory} error={error} />

@@ -1,0 +1,161 @@
+[
+  {
+    "id": "rec-soap-001",
+    "residentId": "aiko-mori",
+    "type": "soap_note",
+    "occurredAt": "2026-07-01T13:15:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Yamada"
+    },
+    "body": "Resident walked slower than baseline after lunch; gait looked cautious near the hallway turn.",
+    "legacyNoteId": "note-001"
+  },
+  {
+    "id": "rec-soap-002",
+    "residentId": "aiko-mori",
+    "type": "soap_note",
+    "occurredAt": "2026-07-01T20:30:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Sato"
+    },
+    "body": "Resident refused the evening medication and said, 'I do not want it tonight.'",
+    "legacyNoteId": "note-002"
+  },
+  {
+    "id": "rec-soap-003",
+    "residentId": "aiko-mori",
+    "type": "soap_note",
+    "occurredAt": "2026-07-02T13:15:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Yamada"
+    },
+    "body": "Noise from the corridor seemed to agitate the resident; they asked staff to keep the room quiet.",
+    "legacyNoteId": "note-003"
+  },
+  {
+    "id": "rec-soap-004",
+    "residentId": "aiko-mori",
+    "type": "soap_note",
+    "occurredAt": "2026-07-03T13:15:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Tanaka"
+    },
+    "body": "Gait remained slower than baseline but steady with walker support.",
+    "legacyNoteId": "note-004"
+  },
+  {
+    "id": "rec-soap-005",
+    "residentId": "aiko-mori",
+    "type": "soap_note",
+    "occurredAt": "2026-07-04T20:30:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Sato"
+    },
+    "body": "Resident again refused medication and repeated, 'I do not want it tonight.'",
+    "legacyNoteId": "note-005"
+  },
+  {
+    "id": "rec-family-001",
+    "residentId": "aiko-mori",
+    "type": "family_memory",
+    "occurredAt": "2026-06-21T15:00:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Mika Mori"
+    },
+    "body": "My mother has always loved quiet music after dinner - it used to help her wind down even before she moved in, and I still see her hum along when the room is calm."
+  },
+  {
+    "id": "rec-family-002",
+    "residentId": "aiko-mori",
+    "type": "family_memory",
+    "occurredAt": "2026-06-28T15:00:00.000Z",
+    "author": {
+      "role": "family",
+      "name": "Mika Mori"
+    },
+    "body": "She has always liked warm tea after meals, ever since I was a child. It was our little ritual together, and she still brightens up when it's offered after lunch or dinner."
+  },
+  {
+    "id": "rec-med-001",
+    "residentId": "aiko-mori",
+    "type": "medication_record",
+    "occurredAt": "2026-06-22T20:00:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Sato"
+    },
+    "body": "Evening medication administered on schedule after a familiar nurse walked through the sequence first. Resident accepted without hesitation."
+  },
+  {
+    "id": "rec-med-002",
+    "residentId": "aiko-mori",
+    "type": "medication_record",
+    "occurredAt": "2026-06-27T20:00:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Tanaka"
+    },
+    "body": "Evening medication administered on schedule. Resident asked for the door to be partly closed first, then accepted the dose calmly."
+  },
+  {
+    "id": "rec-med-003",
+    "residentId": "aiko-mori",
+    "type": "medication_record",
+    "occurredAt": "2026-07-01T20:15:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Sato"
+    },
+    "body": "Resident refused the evening medication and said, 'I do not want it tonight.' An unfamiliar staff member was covering the round. Re-offered later with a familiar nurse and resident accepted."
+  },
+  {
+    "id": "rec-incident-001",
+    "residentId": "aiko-mori",
+    "type": "incident_report",
+    "occurredAt": "2026-06-24T19:30:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Yamada"
+    },
+    "body": "Evening agitation observed near the corridor by the room; increased noise from a passing cart appeared to trigger restlessness. Staff lowered noise, sat at eye level, and resident settled within a few minutes."
+  },
+  {
+    "id": "rec-incident-002",
+    "residentId": "aiko-mori",
+    "type": "incident_report",
+    "occurredAt": "2026-07-02T19:45:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Yamada"
+    },
+    "body": "Corridor noise from evening cleaning equipment coincided with visible agitation; resident asked staff to keep the room quiet. Situation resolved after staff reduced nearby noise and slowed their approach."
+  },
+  {
+    "id": "rec-obs-001",
+    "residentId": "aiko-mori",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-25T13:30:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Tanaka"
+    },
+    "body": "Resident rested comfortably after lunch, as is typical, and preferred an unhurried transition back to her chair by the window."
+  },
+  {
+    "id": "rec-obs-002",
+    "residentId": "aiko-mori",
+    "type": "nurse_observation",
+    "occurredAt": "2026-06-30T13:00:00.000Z",
+    "author": {
+      "role": "nurse",
+      "name": "Yamada"
+    },
+    "body": "Gait was steady with walker support during the daytime routine; resident responded well to short sentences and either-or choices offered during the walk."
+  }
+]
