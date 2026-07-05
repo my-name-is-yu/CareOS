@@ -50,7 +50,7 @@ export default function HomePage() {
         const response = await globalThis.fetch("/api/compile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ note, mode: modeName })
+          body: JSON.stringify({ note: note.note, mode: modeName, transcript: note.transcript })
         });
         if (!response.ok) throw new Error("compile failed");
         const payload = (await response.json()) as CompilePayload;
@@ -84,9 +84,9 @@ export default function HomePage() {
         <div>
           <p className="eyebrow">CareOS ops console</p>
           <h1>Typed note to resident shift memory</h1>
-          <p className="lede">OFF renders first. ON is available through the memory toggle. `F` restores the active pane from the cached fixture.</p>
+          <p className="lede">Live resident context, compiled note review, and cached fallback data in one operator-focused screen.</p>
         </div>
-          <div className="resident-card">
+        <div className="resident-card">
           <span>Resident</span>
           <strong>{resident.name}</strong>
           <span>{residentLabel}</span>
