@@ -1,16 +1,33 @@
-import type { CompileEnvelope, CompileResult, CareRecord, RecordType } from "./schema";
-import type { HistoryNote, PatientMemory, Resident } from "./data";
+import type { Resident } from "./data";
+import type {
+  CareRecommendation,
+  CareRecord,
+  FieldDiff,
+  LivingCareProfile,
+  ProfileChange,
+  ProfileCitation,
+  ProfileFieldName,
+  ProfileUpdateProposal,
+  RecordType,
+  TrendFlag,
+} from "./schema";
 
-export type { Resident, HistoryNote, PatientMemory, CareRecord, RecordType };
-
-export type NoteRequest = {
-  note: string;
+export type {
+  Resident,
+  CareRecord,
+  RecordType,
+  LivingCareProfile,
+  ProfileFieldName,
+  ProfileCitation,
+  ProfileChange,
+  CareRecommendation,
+  TrendFlag,
+  FieldDiff,
+  ProfileUpdateProposal,
 };
 
-export type CompilePayload = CompileEnvelope;
-export type CompileResultPayload = CompileResult;
-export type Citation = CompileResult["drift_flags"][number]["citations"][number];
-export type DriftFlagData = CompileResult["drift_flags"][number];
-export type Observation = CompileResult["observations"][number];
-export type ObservationCategory = Observation["category"];
-export type HandoffBrief = CompileResult["handoff_brief"];
+export type ResidentEnvelope = {
+  resident: Resident;
+  profile: LivingCareProfile | null;
+  recentRecords: CareRecord[];
+};

@@ -1,4 +1,5 @@
-import type { HistoryNote, PatientMemory, Resident } from "./data";
+import type { Resident } from "./data";
+import type { CareRecord, LivingCareProfile } from "./schema";
 
 export const realtimeModel = "gpt-realtime-2";
 export const realtimeWebRtcUrl = "https://api.openai.com/v1/realtime/calls";
@@ -10,43 +11,52 @@ export type RealtimeClientSecretResponse = {
   };
 };
 
+export type RealtimeInstructionsInput = {
+  resident: Resident;
+  profile: LivingCareProfile | null;
+  recentRecords: CareRecord[];
+};
+
 function listSection(title: string, values: string[]): string {
   return [`${title}:`, ...(values.length > 0 ? values.map((value) => `- ${value}`) : ["- Not loaded."])].join("\n");
 }
 
-export function buildRealtimeInstructions(
-  resident: Resident,
-  memory: PatientMemory,
-  history: HistoryNote[],
-  gbrainContext?: string | null,
-): string {
-  const recentNotes = history
-    .map((entry) => `- ${entry.date} ${entry.shift} ${entry.author} (${entry.note_id}): ${entry.text}`)
+/**
+ * Builds the realtime nursing-support agent instructions, grounded on the
+ * latest APPROVED Living Care Profile plus the most recent care records.
+ * Never invents facts outside of the approved profile or the loaded records.
+ */
+export function buildRealtimeInstructions({ resident, profile, recentRecords }: RealtimeInstructionsInput): string {
+  const recentNotes = recentRecords
+    .map((record) => `- ${record.occurredAt} ${record.type} ${record.author.name ?? record.author.role} (${record.id}): ${record.body}`)
     .join("\n");
+
+  const careRecommendations = profile?.careRecommendations.value.map((item) => `${item.situation} -> ${item.approach}`) ?? [];
+  const trendFlags = profile?.trendFlags.value.map((item) => `[${item.severity}] ${item.claim}`) ?? [];
+  const recentChanges = profile?.recentChanges.value.map((item) => `[${item.direction}] ${item.description}`) ?? [];
 
   return [
     "You are the CareOS realtime nursing support agent for dementia-care staff.",
-    "Use G-Brain patient knowledge as the primary context when loaded; otherwise use display patient memory. Do not invent facts that are not in loaded memory or in the user's current observation.",
+    "Ground every answer in the approved Living Care Profile below and the most recent care records. Do not invent facts that are not present there or in the user's current observation.",
     `Resident: ${resident.name}, age ${resident.age}, room ${resident.room}.`,
     `Preferred care language: ${resident.language}. Timezone: ${resident.timezone}.`,
     "Care workflow:",
-    "- Answer questions from loaded patient memory when possible and cite the relevant memory in plain language.",
+    "- Answer questions from the approved profile when possible and cite the relevant field in plain language.",
     "- Ask for missing observations such as time, behavior, intake, mobility, pain cues, sleep, medication refusal, environment, and safety risks.",
     "- Suggest nursing checks, monitoring steps, and handoff wording for a licensed staff member to review.",
     "- Draft concise handoff text when asked.",
     "- Refuse diagnosis, prescribing, medication changes, restraints, or autonomous care decisions. Direct staff to facility policy and licensed clinicians for those decisions.",
-    "G-Brain patient knowledge:",
-    gbrainContext || "- Not loaded; use display patient memory and source shift notes instead.",
-    "Display patient memory:",
-    listSection("Baseline", memory.baseline),
-    listSection("Communication cues", memory.communication_cues),
-    listSection("Preferences", memory.preferences),
-    listSection("Known triggers", memory.known_triggers),
-    listSection("Calming approaches", memory.calming_approaches),
-    listSection("Family/context notes", memory.family_context_notes),
-    listSection("Recent history", memory.recent_history),
-    listSection("Watch patterns", memory.watch_patterns),
-    "Source shift notes:",
-    recentNotes || "- No prior notes loaded.",
-  ].join("\n");
+    `Approved Living Care Profile (version ${profile?.version ?? "none"}):`,
+    profile ? `Person summary: ${profile.personSummary.value}` : "- No approved profile loaded yet.",
+    profile ? `Handoff brief: ${profile.handoffBrief.value}` : "",
+    listSection("Recent changes", recentChanges),
+    listSection("Calming approaches", profile?.calmingApproaches.value ?? []),
+    listSection("Known triggers", profile?.knownTriggers.value ?? []),
+    listSection("Care recommendations", careRecommendations),
+    listSection("Trend flags", trendFlags),
+    "Recent care records:",
+    recentNotes || "- No recent care records loaded.",
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
 }

@@ -234,15 +234,6 @@ button:disabled { opacity: 0.55; }
 .voice-message span { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; }
 .voice-message.assistant { background: var(--accent-soft); }
 
-.memory-rail { display: grid; gap: 0; overflow: hidden; }
-.rail-section { padding: 16px; border-bottom: 1px solid var(--border); }
-.rail-section:last-child { border-bottom: 0; }
-.memory-list { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 8px; }
-
-.drift-flag summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 14px; align-items: center; }
-.drift-flag summary strong { color: var(--warn); font-size: 0.8rem; }
-.drift-flag-body { margin-top: 12px; display: grid; gap: 10px; }
-
 blockquote {
   margin: 0;
   padding-left: 12px;
@@ -250,23 +241,152 @@ blockquote {
   color: var(--text);
 }
 
+/* Next Nurse view */
+.next-nurse-view { display: grid; gap: 10px; }
+
+.profile-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.profile-meta span { background: var(--panel-subtle); color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 6px 10px; font-size: 0.82rem; font-weight: 650; }
+
+.field-grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.field-card { border: 1px solid var(--border); }
+.field-card.field-updated { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); position: relative; }
+.field-card.field-updated::before {
+  content: "Updated";
+  position: absolute;
+  top: -10px;
+  left: 14px;
+  background: var(--accent);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.change-item, .recommendation-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-subtle);
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.direction-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.direction-badge.direction-worsened { background: rgba(138, 31, 17, 0.12); color: var(--danger); }
+.direction-badge.direction-improved { background: rgba(15, 91, 85, 0.14); color: var(--accent); }
+.direction-badge.direction-new { background: var(--warn-soft); color: var(--warn); }
+
+.trend-flag {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-subtle);
+  padding: 12px;
+}
+
+.trend-flag-header { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.trend-flag-header strong { font-size: 0.78rem; color: var(--muted); }
+.trend-flag.severity-attention .trend-flag-header strong { color: var(--danger); }
+.trend-flag.severity-watch .trend-flag-header strong { color: var(--warn); }
+
+.evidence { margin-top: 8px; }
+.evidence summary { cursor: pointer; list-style: none; font-size: 0.82rem; color: var(--accent); font-weight: 650; }
+.evidence-body { margin-top: 8px; display: grid; gap: 8px; }
+
+.citation {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-subtle);
+  padding: 10px;
+}
+
+.citation-meta {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0;
+  margin-bottom: 6px;
+}
+
+/* Review and approve */
+.review-rail { display: grid; gap: 14px; }
+.proposal-generator { display: grid; gap: 4px; }
+.error-line { color: var(--danger); }
+.success-line { color: var(--accent); }
+
+.proposal-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-subtle);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.proposal-header { display: flex; justify-content: space-between; gap: 10px; align-items: center; font-weight: 650; }
+
+.field-diff {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.field-diff h4 { margin: 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0; color: var(--muted); }
+.diff-grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.diff-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.diff-grid ul { margin: 0; padding-left: 16px; }
+
+.resolved-proposals summary { cursor: pointer; list-style: none; font-weight: 650; color: var(--muted); }
+.resolved-proposals { margin-top: 4px; }
+.proposal-card.resolved { padding: 10px 12px; }
+
+.status-badge {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--panel);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.status-badge.status-approved, .status-badge.status-edited_and_approved { background: var(--accent-soft); color: var(--accent); }
+.status-badge.status-rejected { background: rgba(138, 31, 17, 0.1); color: var(--danger); }
+
 @media (max-width: 1120px) {
   .workspace { grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr); }
-  .memory-rail { grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .rail-section { border-bottom: 0; border-right: 1px solid var(--border); }
-  .rail-section:last-child { border-right: 0; }
+  .review-rail { grid-column: 1 / -1; }
 }
 
 @media (max-width: 820px) {
-  .workspace, .shift-grid, .memory-rail { grid-template-columns: 1fr; }
-  .rail-section { border-right: 0; border-bottom: 1px solid var(--border); }
+  .workspace, .shift-grid, .field-grid, .diff-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
   .app-shell { padding: 10px; }
   .patient-bar { align-items: flex-start; flex-direction: column; }
   .patient-meta { justify-content: flex-start; }
-  .panel, .shift-view, .memory-rail, .patient-bar { padding: 14px; }
+  .panel, .shift-view, .patient-bar { padding: 14px; }
   .shift-header, .voice-header { align-items: flex-start; flex-direction: column; }
   .fallback-row { grid-template-columns: 1fr; }
 }

@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-import { loadHistory, loadMemoryContextForNote, loadResident } from "../../../../lib/data";
+import { loadResident } from "../../../../lib/data";
+import { loadLatestProfile } from "../../../../lib/profiles";
 import { buildRealtimeInstructions, realtimeModel, type RealtimeClientSecretResponse } from "../../../../lib/realtime";
+import { loadRecords } from "../../../../lib/records";
 
 export const runtime = "nodejs";
+
+const RESIDENT_ID = "aiko-mori";
 
 export async function POST() {
   if (!globalThis.process.env.OPENAI_API_KEY) {
@@ -12,14 +16,21 @@ export async function POST() {
   }
 
   try {
-    const [resident, history] = await Promise.all([loadResident(), loadHistory()]);
-    const memoryContext = await loadMemoryContextForNote(undefined, resident);
+    const [resident, profile, records] = await Promise.all([
+      loadResident(),
+      loadLatestProfile(RESIDENT_ID),
+      loadRecords(RESIDENT_ID),
+    ]);
+    const recentRecords = [...records]
+      .sort((a, b) => (a.occurredAt < b.occurredAt ? 1 : a.occurredAt > b.occurredAt ? -1 : 0))
+      .slice(0, 10);
+
     const openai = new OpenAI({ apiKey: globalThis.process.env.OPENAI_API_KEY });
     const session = await openai.realtime.clientSecrets.create({
       session: {
         type: "realtime",
         model: realtimeModel,
-        instructions: buildRealtimeInstructions(resident, memoryContext.displayMemory, history, memoryContext.gbrainContext),
+        instructions: buildRealtimeInstructions({ resident, profile, recentRecords }),
         output_modalities: ["audio"],
         audio: {
           input: {
